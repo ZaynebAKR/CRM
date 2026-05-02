@@ -1,0 +1,45 @@
+<div class="container">
+  <!-- Left Section -->
+  <div class="left-box">
+    <div class="logo-triangle">
+      <img src="assets/Societé.png" alt="Logo" class="logo-image">
+    </div>
+    
+    <h1>Welcome Back</h1>
+    <p>Login to access your account and continue your learning journey with Easy Tutorials</p>
+    <button class="btn-outline" routerLink="/aboutus">About Us</button>
+  </div>
+
+  <!-- Right Section (The White Form) -->
+  <div class="right-box">
+    <h2>  <img src="assets/user.png" alt="Logo" class="logo-image" style="height: 80px; margin-bottom: -10px; margin-right: -100px;">Login </h2>
+    
+<div class="input-group icon-user">
+  <input type="text" [(ngModel)]="username" placeholder="Username">
+</div>
+
+<div class="input-group icon-lock">
+  <input type="password" [(ngModel)]="password" placeholder="Password">
+</div>
+
+      <div class="forgot-password">
+  <a routerLink="/forgot-password">Forgot password?</a>
+</div>
+
+    <div class="remember-me">
+  <label class="remember-label">
+    <input 
+      type="checkbox" 
+      [(ngModel)]="rememberMe"
+      class="remember-checkbox">
+    <span class="checkmark"></span>
+    Remember me
+  </label>
+</div>
+    <div class="button-container">
+      <button class="btn-solid" (click)="login()">Login</button>
+    </div>
+    
+    <p class="login-link">Don't have an account? <a routerLink="/register">Register here</a></p>
+  </div>
+</div>

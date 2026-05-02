@@ -1,0 +1,285 @@
+<!-- NAVBAR CONTAINER - SEPARATE from about-container -->
+<div class="app-navbar">
+  <div class="nav-container">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        placeholder="Search sections... (who, awards, values, expertise, locations)"
+        [(ngModel)]="searchText"
+        (input)="liveSearch()"
+      />
+    </div>
+    <button class="login-btn" routerLink="/login">
+      <i class="fas fa-sign-in-alt"></i> Login
+    </button>
+  </div>
+</div>
+
+
+<!-- MAIN ABOUT CONTENT -->
+<div class="about-container">
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <img src="assets/Societé.png" alt="INSOMEA Company" class="company-banner-img" style="height: 100px;"/>
+      <h1>About Us</h1>
+      <p>INSOMEA - Driving Digital Transformation Across the MEA Region</p>
+    </div>
+  </div>
+
+  <!-- Company Overview -->
+  <div class="overview-section" id="who-we-are">
+    <div class="container">
+      <div class="overview-content">
+        <h2>Who We Are</h2>
+        <p>INSOMEA is a <strong>Microsoft Cloud Gold Partner</strong> specializing in Microsoft 365, Microsoft Azure, Cybersecurity, and Training. Founded in 2016, we now operate from six offices across Tunisia, Bahrain, France, Algeria, Morocco & Ivory Coast, providing comprehensive solutions throughout the MEA region.</p>
+        <p>As a Microsoft Cloud Partner since 2014, our certified experts deliver secure, scalable, and innovative IT strategies to boost productivity, revenue, and growth. We are proud to be part of the Beyon Solutions company group.</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">+50</div>
+          <div class="stat-label">Employees</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">+500</div>
+          <div class="stat-label">Customers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">8+</div>
+          <div class="stat-label">Years of Expertise</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">8</div>
+          <div class="stat-label">Advanced Specializations</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Partner of the Year Awards</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Awards Section -->
+  <div class="awards-section" id="awards">
+    <div class="container">
+      <h2>Recognition & Awards</h2>
+      <p class="section-subtitle">INSOMEA has been consistently recognized for excellence in innovation and customer solutions</p>
+      <div class="awards-grid">
+        <div class="award-card">
+          <i class="fas fa-trophy"></i>
+          <h3>Microsoft Partner of the Year</h3>
+          <p>Tunisia - 2021 & 2022</p>
+        </div>
+        <div class="award-card">
+          <i class="fas fa-medal"></i>
+          <h3>Microsoft Partner of the Year</h3>
+          <p>Bahrain - 2020</p>
+        </div>
+        <div class="award-card">
+          <i class="fas fa-star"></i>
+          <h3>15+ Gold Competencies</h3>
+          <p>Across multiple Microsoft technologies</p>
+        </div>
+        <div class="award-card">
+          <i class="fas fa-shield-alt"></i>
+          <h3>8 Advanced Specializations</h3>
+          <p>In Security & Modern Workplace</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core Values Section -->
+  <div class="values-section" id="values">
+    <div class="container">
+      <h2>Our Core Values</h2>
+      <p class="section-subtitle">Four pillars designed to maximize quality and client satisfaction</p>
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3>End to End Change Management</h3>
+          <p>We are there for our clients to seize the opportunity to move to the cloud, understand the risks and related mitigation factors. And establish a full change management strategy including Communication plan, training plan, champions program.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-certificate"></i>
+          </div>
+          <h3>Certified Team</h3>
+          <p>All our technical team members are Microsoft certified experts (150+ Certifications), among them 15+ Microsoft certified trainers. We count in our team also an MVP* (only 6 in North Africa).</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3>Adoption</h3>
+          <p>Our customer success managers help you use your Microsoft solutions in alignment with your business strategy and an optimal return on investment. Through identifying contextual use case scenarios and providing end users with full training including training materials.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-headset"></i>
+          </div>
+          <h3>Continuous Support</h3>
+          <p>Our IT support team is always there for our clients to help them continuously use Microsoft solutions with a minimum disruption and optimal added value.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expertise Section -->
+  <div class="expertise-section" id="expertise">
+    <div class="container">
+      <h2>Our Expertise</h2>
+      <div class="expertise-grid">
+        <div class="expertise-category">
+          <h3><i class="fas fa-cloud"></i> Cloud Solutions</h3>
+          <ul>
+            <li>Microsoft Azure</li>
+            <li>Microsoft 365</li>
+            <li>Cloud Infrastructure</li>
+            <li>App Modernization</li>
+          </ul>
+        </div>
+        <div class="expertise-category">
+          <h3><i class="fas fa-lock"></i> Cybersecurity</h3>
+          <ul>
+            <li>Identity & Access Management</li>
+            <li>Information Protection & Governance</li>
+            <li>Threat Protection</li>
+            <li>Cloud Security Solutions</li>
+          </ul>
+        </div>
+        <div class="expertise-category">
+          <h3><i class="fas fa-briefcase"></i> Modern Workplace</h3>
+          <ul>
+            <li>Adoption & Change Management</li>
+            <li>Microsoft Teams Deployment</li>
+            <li>Meetings & Meeting Rooms</li>
+            <li>Teamwork Deployment</li>
+          </ul>
+        </div>
+        <div class="expertise-category">
+          <h3><i class="fas fa-graduation-cap"></i> Training</h3>
+          <ul>
+            <li>Microsoft Certification Programs</li>
+            <li>Technical Workshops</li>
+            <li>End-User Training</li>
+            <li>Professional Development</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Locations Section -->
+  <div class="locations-section" id="locations">
+    <div class="container">
+      <h2>Our Global Presence</h2>
+      <div class="locations-grid">
+        <div class="location-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>Tunisia</h3>
+          <p>Immeuble lac d'or "Business Center", Bloc B, 3ème étage, Les Berges du Lac, Tunis 1053</p>
+        </div>
+        <div class="location-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>Bahrain</h3>
+          <p>Office 2902, Al-Moayyed Tower, Seef Area, Manama 428</p>
+        </div>
+        <div class="location-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>France</h3>
+          <p>Rue de Stockholm 75008 Paris, RCS Paris</p>
+        </div>
+        <div class="location-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>Algeria</h3>
+          <p>Bois des cars 01 Villa 63 Bureau 74 1er étage Dely Ibrahim, Alger</p>
+        </div>
+        <div class="location-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>Morocco</h3>
+          <p>Rue Soumaya Résidence Shehrazade 3, 5ème étage, n° 22 Palmiers, Casablanca</p>
+        </div>
+        <div class="location-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>Ivory Coast</h3>
+          <p>Yopougon maroc ananeraie, 02 BP Abidjan 02, Abidjan, CI</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-top">
+
+      <!-- LEFT SIDE: Logo + Description + Follow us + Contact us -->
+      <div class="footer-left">
+        <img src="assets/Societé.png" alt="INSOMEA Logo" class="footer-logo"/>
+        <p class="footer-desc">INSOMEA COMPUTER SOLUTIONS works in partnership with Microsoft. Two main offices Located in Bahrain and in Tunisia and 30+ team spread over the MEA region, we supply full fledge Cloud Computing services.</p>
+
+        <h4>Follow us</h4>
+<div class="social-icons">
+  <a href="https://www.facebook.com/insomea" target="_blank"><i class="fab fa-facebook"></i></a>
+  <a href="https://www.youtube.com/watch?v=R4qNEUR-CqQ" target="_blank"><i class="fab fa-youtube"></i></a>
+  <a href="https://www.instagram.com/insomea_cloud/" target="_blank"><i class="fab fa-instagram"></i></a>
+  <a href="https://www.linkedin.com/company/insomea/posts/?feedView=all" target="_blank"><i class="fab fa-linkedin"></i></a>
+</div>
+
+        <h4>Contact us</h4>
+        <p><a href="mailto:info@insomea.com">info@insomea.com</a></p>
+      </div>
+
+      <!-- RIGHT SIDE: Our Offices -->
+      <div class="footer-right">
+        <h4>Our offices</h4>
+
+        <div class="office">
+          <strong>Bahrain</strong>
+          <p><a href="tel:0097313300707">+973 13 300 707</a></p>
+          <p>Office 2902, Al-Moayyed Tower, Seef Area, Manama, Bahrain 428</p>
+        </div>
+
+        <div class="office">
+          <strong>Tunisia</strong>
+          <p><a href="tel:0021698174454">+216 98 174 454</a></p>
+          <p>Immeuble lac d'or "Business Center", Bloc B, 3ème étage, Les Berges du Lac, Tunis 1053</p>
+        </div>
+
+        <div class="office">
+          <strong>Algeria</strong>
+          <p>Bois des cars 01 Villa 63 Bureau 74 1er étage Dely Ibrahim, Alger</p>
+        </div>
+
+        <div class="office">
+          <strong>Morocco</strong>
+          <p>Rue Soumaya Résidence Shehrazade 3, 5ème étage, n° 22 Palmiers, Casablanca</p>
+        </div>
+
+        <div class="office">
+          <strong>France</strong>
+          <p>Rue de Stockholm 75008 Paris, RCS Paris</p>
+        </div>
+
+        <div class="office">
+          <strong>Ivory Coast</strong>
+          <p>Yopougon maroc ananeraie, 02 BP Abidjan 02, Abidjan, CI</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer Bottom Bar -->
+    <div class="footer-bottom">
+      <p>INSOMEA COMPUTER SOLUTIONS. 2026 All Rights Reserved.</p>
+    </div>
+<!-- Scroll to Top Button -->
+<button class="scroll-top-btn" (click)="scrollToTop()" id="scrollTopBtn">
+  <i class="fas fa-chevron-up"></i>
+</button>
+  </footer>

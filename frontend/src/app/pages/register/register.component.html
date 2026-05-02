@@ -1,0 +1,45 @@
+<div class="container">
+  <div class="left-box">
+    <div class="logo-triangle">
+      <img src="assets/Societé.png" alt="Logo" class="logo-image">
+    </div>
+    <h1>Join Us</h1>
+    <p>Subscribe Easy Tutorials YouTube Channel to watch more videos</p>
+    <button class="btn-outline" routerLink="/aboutus">About Us</button>
+  </div>
+
+  <div class="right-box">
+    <h2>Register </h2>
+<div class="input-group icon-user">
+  <input type="text" [(ngModel)]="username" placeholder="Username">
+</div>
+
+<div class="input-group icon-email">
+  <input type="email" [(ngModel)]="email" placeholder="Email">
+</div>
+
+<div class="input-group icon-lock">
+  <input type="password" [(ngModel)]="password" placeholder="Password">
+</div>
+
+<div class="input-group icon-lock">
+  <input type="password" [(ngModel)]="confirmPassword" placeholder="Confirm Password">
+</div>
+
+<div class="input-group icon-role">
+  <select [(ngModel)]="role">
+    <option value="" disabled selected>Choisir un rôle</option>
+    <option value="MICROSOFT">Microsoft</option>
+    <option value="PARTENAIRES_COMMERCIAUX">Partenaires commerciaux</option>
+    <option value="INSOMEA">Insomea</option>
+    <option value="CLIENT">Clients</option>
+  </select>
+</div>
+
+    <div class="button-container">
+      <button class="btn-solid" (click)="register()">Register</button>
+    </div>
+
+    <p class="login-link">Vous avez déjà un compte ? <a routerLink="/login">Connectez-vous ici</a></p>
+  </div>
+</div>
