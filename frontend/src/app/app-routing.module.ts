@@ -10,6 +10,7 @@ import { MicrosoftDashboardComponent } from './pages/microsoft-dashboard/microso
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { authGuard } from './guards/auth.guard';
+import { ChatbotComponent } from './pages/chatbot/chatbot.component';
 const routes: Routes = [
 
   { path: '', redirectTo: 'login', pathMatch: 'full' }, 
@@ -21,8 +22,9 @@ const routes: Routes = [
   { path: 'partenaires-dashboard', component: PartenaireDashboardComponent, canActivate: [authGuard] },
   { path: 'client-dashboard', component: ClientDashboardComponent, canActivate: [authGuard] },
   { path: 'microsoft-dashboard', component: MicrosoftDashboardComponent, canActivate: [authGuard] },
+  { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'chat', component: ChatbotComponent }
 
-  { path: 'reset-password', component: ResetPasswordComponent }
 ];
 
 @NgModule({

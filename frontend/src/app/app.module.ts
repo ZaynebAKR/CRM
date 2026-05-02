@@ -13,6 +13,7 @@ import { InsomeaDashboardComponent } from './pages/insomea-dashboard/insomea-das
 import { PartenaireDashboardComponent } from './pages/partenaire-dashboard/partenaire-dashboard.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { ChatbotComponent } from './pages/chatbot/chatbot.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
     InsomeaDashboardComponent,
     PartenaireDashboardComponent,
     ForgotPasswordComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    ChatbotComponent
 
   ],
   imports: [

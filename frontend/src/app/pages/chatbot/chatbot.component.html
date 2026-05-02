@@ -1,0 +1,101 @@
+<!-- Floating Launch Button -->
+<div class="chat-launcher" (click)="toggleChat()" [class.open]="isChatOpen">
+  <i class="fas fa-comments" *ngIf="!isChatOpen"></i>
+  <i class="fas fa-times" *ngIf="isChatOpen"></i>
+  <span class="badge" *ngIf="unreadCount > 0 && !isChatOpen">{{ unreadCount }}</span>
+</div>
+
+<!-- Chat Window -->
+<div class="chat-window" [class.visible]="isChatOpen">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="header-left">
+      <div class="header-avatar">
+        <i class="fas fa-robot"></i>
+      </div>
+      <div class="header-info">
+        <div class="header-name">INSOMEA Assistant</div>
+        <div class="header-status">
+          <span class="dot" [class.typing]="isTyping"></span>
+          {{ isTyping ? 'Typing...' : 'Online' }}
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button (click)="clearChat()" title="Clear conversation">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+      <button (click)="toggleChat()" title="Close">
+        <i class="fas fa-chevron-down"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages Area -->
+  <div class="chat-messages" #messagesContainer>
+
+    <!-- Welcome screen -->
+    <div class="welcome" *ngIf="messages.length === 0">
+      <div class="welcome-icon"><i class="fas fa-robot"></i></div>
+      <h4>Hello! 👋</h4>
+      <p>I'm the <strong>INSOMEA Virtual Assistant</strong>.<br>How can I help you today?</p>
+      <div class="quick-chips">
+        <button class="chip" *ngFor="let q of quickQuestions" (click)="sendQuickQuestion(q)">
+          {{ q }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div
+      *ngFor="let msg of messages"
+      class="message"
+      [class.user]="msg.role === 'user'"
+      [class.bot]="msg.role === 'assistant'">
+
+      <div class="avatar" *ngIf="msg.role === 'assistant'">
+        <i class="fas fa-robot"></i>
+      </div>
+
+      <div class="bubble">
+        <p>{{ msg.content }}</p>
+        <span class="time">{{ formatTime(msg.timestamp) }}</span>
+      </div>
+    </div>
+
+    <!-- Typing indicator -->
+    <div class="message bot" *ngIf="isTyping">
+      <div class="avatar"><i class="fas fa-robot"></i></div>
+      <div class="bubble typing">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-msg" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    </div>
+
+  </div>
+
+  <!-- Input Area -->
+  <div class="chat-input">
+    <div class="input-row">
+<textarea
+  #inputField
+  [(ngModel)]="userInput"
+(keydown.enter)="onEnterKey($event)"
+  (input)="autoResize($event)"
+  placeholder="Ask me about INSOMEA..."
+  rows="1"
+  [disabled]="isTyping">
+</textarea>
+      <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isTyping">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+    <div class="hint">Enter to send &nbsp;·&nbsp; Shift+Enter for new line</div>
+  </div>
+
+</div>

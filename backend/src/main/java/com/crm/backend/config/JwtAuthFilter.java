@@ -25,7 +25,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/auth/register",
             "/auth/forgot-password",
             "/auth/verify-reset-code",
-            "/auth/reset-password"
+            "/auth/reset-password",
+            "/api/chat"
     );
 
     @Override
@@ -37,7 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         // Skip JWT check for public routes
-        if (PUBLIC_PATHS.stream().anyMatch(path::equals)) {
+        if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
             filterChain.doFilter(request, response);
             return;
         }

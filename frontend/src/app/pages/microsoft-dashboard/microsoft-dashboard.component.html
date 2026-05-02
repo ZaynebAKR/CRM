@@ -1,10 +1,41 @@
-<div class="dashboard-container">
-  <div class="dashboard-header">
-    <h1>Microsoft Dashboard</h1>
-    <button class="btn-logout" (click)="logout()">
-      <i class="fas fa-sign-out-alt"></i> Logout
-    </button>
-  </div>
+<div class="layout">
 
-  <p>Welcome to the Microsoft Dashboard!</p>
+  <!-- Top Header (full width) -->
+  <header class="top-header">
+
+    <!-- Left: Logo + Title -->
+    <div class="header-left">
+      <img src="assets/Societé.png" alt="Socité Logo" class="logo-img" />
+      <span class="header-title">Microsoft Dashboard</span>
+    </div>
+
+    <!-- Right: Actions -->
+    <div class="header-actions">
+      <button class="btn-icon" title="Profile Settings" routerLink="/profile">
+        <i class="fas fa-cog"></i>
+      </button>
+      <button class="btn-logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+
+  </header>
+
+  <!-- Body below header -->
+  <div class="body-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+        <!-- Empty nav — add items here later -->
+      </nav>
+    </aside>
+
+    <!-- Page Content -->
+    <main class="content">
+      <p class="welcome-text">Welcome to the Microsoft Dashboard!</p>
+    </main>
+
+  </div>
 </div>
