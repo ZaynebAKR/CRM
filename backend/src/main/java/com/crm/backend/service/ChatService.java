@@ -25,7 +25,6 @@ public class ChatService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(apiKey);
 
-        // Build messages list for Groq (OpenAI format)
         List<Map<String, String>> messages = new ArrayList<>();
 
         // Add system prompt as first message
@@ -34,15 +33,15 @@ public class ChatService {
                 "content", request.getSystemPrompt()
         ));
 
-        // Add conversation history
-        for (ChatRequest.Message msg : request.getMessages()) {
-            messages.add(Map.of(
-                    "role", msg.getRole().equals("assistant") ? "assistant" : "user",
-                    "content", msg.getContent()
-            ));
+        if (request.getMessages() != null) {
+            for (ChatRequest.Message msg : request.getMessages()) {
+                messages.add(Map.of(
+                        "role", msg.getRole().equals("assistant") ? "assistant" : "user",
+                        "content", msg.getContent()
+                ));
+            }
         }
 
-        // Build request body
         Map<String, Object> body = new HashMap<>();
         body.put("model", "llama-3.3-70b-versatile");
         body.put("messages", messages);
@@ -52,7 +51,7 @@ public class ChatService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
         try {
-            System.out.println("🔵 Calling Groq API...");
+            System.out.println(" Calling Groq API...");
 
             ResponseEntity<Map> response = restTemplate.exchange(
                     GROQ_URL,
@@ -62,7 +61,7 @@ public class ChatService {
             );
 
             Map<String, Object> responseBody = response.getBody();
-            System.out.println("🟢 Groq response received!");
+            System.out.println(" Groq response received!");
 
             if (responseBody != null) {
                 List<Map<String, Object>> choices =
@@ -77,7 +76,7 @@ public class ChatService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("❌ Groq API error: " + e.getMessage());
+            System.err.println(" Groq API error: " + e.getMessage());
             throw new RuntimeException("Groq API error: " + e.getMessage(), e);
         }
 

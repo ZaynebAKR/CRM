@@ -1,0 +1,181 @@
+<div class="page-header">
+  <h1 class="page-title"><i class="fas fa-tools"></i> Tech Dashboard</h1>
+  <p class="page-subtitle">Manage client license deployments</p>
+</div>
+
+<div class="alert alert-success" *ngIf="successMessage">
+  <i class="fas fa-check-circle"></i> {{ successMessage }}
+</div>
+<div class="alert alert-error" *ngIf="errorMessage">
+  <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card total">
+    <div class="kpi-icon"><i class="fas fa-layer-group"></i></div>
+    <div class="kpi-info">
+      <div class="kpi-value">{{ totalLicenses }}</div>
+      <div class="kpi-label">Total Licenses</div>
+    </div>
+  </div>
+  <div class="kpi-card not-started">
+    <div class="kpi-icon"><i class="fas fa-hourglass-start"></i></div>
+    <div class="kpi-info">
+      <div class="kpi-value">{{ countNotStarted }}</div>
+      <div class="kpi-label">Not Started</div>
+    </div>
+  </div>
+  <div class="kpi-card in-progress">
+    <div class="kpi-icon"><i class="fas fa-cogs"></i></div>
+    <div class="kpi-info">
+      <div class="kpi-value">{{ countInProgress }}</div>
+      <div class="kpi-label">In Progress</div>
+    </div>
+  </div>
+  <div class="kpi-card deployed">
+    <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+    <div class="kpi-info">
+      <div class="kpi-value">{{ countDeployed }}</div>
+      <div class="kpi-label">Deployed</div>
+    </div>
+  </div>
+  <div class="kpi-card expiring">
+    <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+    <div class="kpi-info">
+      <div class="kpi-value">{{ countExpiringSoon }}</div>
+      <div class="kpi-label">Expiring Soon</div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-state" *ngIf="loading">
+  <i class="fas fa-spinner fa-spin"></i> Loading licenses...
+</div>
+
+<div class="kanban-board" *ngIf="!loading">
+  <div class="kanban-column" *ngFor="let col of columns"
+    (dragover)="onDragOver($event)"
+    (drop)="onDrop($event, col.key)">
+
+    <div class="col-header" [style.border-color]="col.color">
+      <div class="col-title">
+        <i [class]="col.icon" [style.color]="col.color"></i>
+        <span>{{ col.label }}</span>
+        <span class="col-count" [style.background]="col.color">{{ getColumn(col.key).length }}</span>
+      </div>
+    </div>
+
+    <div class="col-body">
+      <div class="kanban-card"
+        *ngFor="let lic of getColumn(col.key)"
+        draggable="true"
+        (dragstart)="onDragStart(lic)"
+        (click)="openDetail(lic)"
+        [class.expiring]="isExpiringSoon(lic)">
+
+        <div class="card-top">
+          <div class="client-avatar">
+            {{ lic.user?.username?.charAt(0)?.toUpperCase() || '?' }}
+          </div>
+          <div class="client-info">
+            <div class="client-name">{{ lic.user?.username || 'Unknown' }}</div>
+            <div class="client-email">{{ lic.user?.email || '' }}</div>
+          </div>
+          <span class="expiring-badge" *ngIf="isExpiringSoon(lic)" title="Expiring soon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </span>
+        </div>
+
+        <div class="card-product">
+          <i class="fas fa-box"></i>
+          {{ lic.productName }}
+        </div>
+
+        <div class="card-footer">
+          <span class="card-qty"><i class="fas fa-hashtag"></i> {{ lic.quantity }} seats</span>
+          <span class="card-date" [class.text-danger]="isExpiringSoon(lic)">
+            <i class="fas fa-calendar-alt"></i> {{ lic.expiryDate }}
+          </span>
+        </div>
+
+        <div class="card-note" *ngIf="lic.deploymentNote">
+          <i class="fas fa-sticky-note"></i> {{ lic.deploymentNote }}
+        </div>
+
+        <div class="drag-hint"><i class="fas fa-grip-vertical"></i> Drag to move</div>
+      </div>
+
+      <div class="col-empty" *ngIf="getColumn(col.key).length === 0">
+        <i [class]="col.icon" [style.color]="col.color"></i>
+        <p>No licenses here</p>
+        <p class="drag-here">Drop cards here</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showNoteModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-sticky-note"></i> Add Deployment Note</h3>
+      <button class="close-btn" (click)="showNoteModal = false; draggedLicense = null">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="color:#666; font-size:14px; margin-bottom: 12px;">
+        Moving to <strong>{{ pendingStatus.replace('_', ' ') }}</strong>. Add an optional note:
+      </p>
+      <textarea [(ngModel)]="noteText" rows="4" placeholder="e.g. Configured M365 tenant, deployed Teams..."
+        style="width:100%; border:1px solid #e0e0e0; border-radius:8px; padding:10px; font-size:14px; outline:none; resize:vertical; box-sizing:border-box;">
+      </textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showNoteModal = false; draggedLicense = null">Cancel</button>
+      <button class="btn-save" (click)="confirmNote()">
+        <i class="fas fa-check"></i> Confirm Move
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="showDetailModal = false">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-info-circle"></i> License Details</h3>
+      <button class="close-btn" (click)="showDetailModal = false"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="selectedLicense">
+      <div class="detail-grid">
+        <div><label>Client</label><span>{{ selectedLicense.user?.username }}</span></div>
+        <div><label>Email</label><span>{{ selectedLicense.user?.email }}</span></div>
+        <div><label>Product</label><span>{{ selectedLicense.productName }}</span></div>
+        <div><label>Part Number</label><span>{{ selectedLicense.partNumber }}</span></div>
+        <div><label>Billing</label><span>{{ selectedLicense.billingCycle }}</span></div>
+        <div><label>Term</label><span>{{ selectedLicense.term }}</span></div>
+        <div><label>Quantity</label><span>{{ selectedLicense.quantity }}</span></div>
+        <div><label>Unit Price</label><span>{{ selectedLicense.unitPrice }} {{ selectedLicense.currency }}</span></div>
+        <div><label>Total</label><span>{{ selectedLicense.totalPrice }} {{ selectedLicense.currency }}</span></div>
+        <div><label>Start Date</label><span>{{ selectedLicense.startDate }}</span></div>
+        <div><label>Expiry Date</label><span [class.text-danger]="isExpiringSoon(selectedLicense)">{{ selectedLicense.expiryDate }}</span></div>
+        <div><label>Status</label>
+          <span class="status-badge" [ngClass]="getStatusClass(selectedLicense.status || '')">
+            {{ selectedLicense.status }}
+          </span>
+        </div>
+        <div><label>Deployment</label>
+          <span class="deploy-badge" [ngClass]="getDeployClass(selectedLicense.deploymentStatus || 'NOT_STARTED')">
+            {{ selectedLicense.deploymentStatus || 'NOT_STARTED' }}
+          </span>
+        </div>
+      </div>
+      <div *ngIf="selectedLicense.deploymentNote" class="note-box">
+        <strong><i class="fas fa-sticky-note"></i> Deployment Note:</strong>
+        <p>{{ selectedLicense.deploymentNote }}</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showDetailModal = false">Close</button>
+    </div>
+  </div>
+</div>

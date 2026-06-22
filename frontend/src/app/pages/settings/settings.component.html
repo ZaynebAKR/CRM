@@ -1,0 +1,61 @@
+<div class="settings-wrapper">
+  <div class="settings-card">
+
+    <div class="settings-left">
+      <img src="assets/change-password.png" alt="Change Password" class="settings-illustration" />
+    </div>
+
+    <div class="settings-right">
+      <h2 class="settings-title">Change Password</h2>
+
+      <div class="alert alert-success" *ngIf="successMessage">
+        <i class="fas fa-check-circle"></i> {{ successMessage }}
+      </div>
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      </div>
+
+      <div class="form-group">
+        <label>Current Password</label>
+        <div class="input-wrap">
+          <i class="fas fa-lock input-icon"></i>
+          <input [type]="showCurrent ? 'text' : 'password'" [(ngModel)]="currentPassword" placeholder="••••••••" />
+          <span class="toggle-show" (click)="showCurrent = !showCurrent">
+            {{ showCurrent ? 'Hide' : 'Show' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>New Password</label>
+        <div class="input-wrap">
+          <i class="fas fa-lock input-icon"></i>
+          <input [type]="showNew ? 'text' : 'password'" [(ngModel)]="newPassword" placeholder="••••••••" />
+          <span class="toggle-show" (click)="showNew = !showNew">
+            {{ showNew ? 'Hide' : 'Show' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <div class="input-wrap">
+          <i class="fas fa-lock input-icon"></i>
+          <input [type]="showConfirm ? 'text' : 'password'" [(ngModel)]="confirmPassword" placeholder="••••••••" />
+          <span class="toggle-show" (click)="showConfirm = !showConfirm">
+            {{ showConfirm ? 'Hide' : 'Show' }}
+          </span>
+        </div>
+        <p class="mismatch-error" *ngIf="confirmPassword && newPassword !== confirmPassword">
+          New password and confirm new password do not match
+        </p>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-close" (click)="resetForm()">Cancel</button>
+        <button class="btn-submit" (click)="savePassword()">Submit</button>
+      </div>
+    </div>
+
+  </div>
+</div>

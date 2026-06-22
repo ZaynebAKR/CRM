@@ -13,7 +13,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AuthService {
@@ -28,7 +27,6 @@ public class AuthService {
     private JwtUtil jwtUtil;
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-    private Map<String, Object[]> resetCodes = new ConcurrentHashMap<>();
 
     public User register(RegisterRequest request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
@@ -45,8 +43,11 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(encoder.encode(request.getPassword()));
-        user.setRole(Role.valueOf(request.getRole()));
-
+        Role role = Role.valueOf(request.getRole());
+        if (role != Role.CLIENT) {
+            throw new RuntimeException("Self-registration is only allowed for CLIENT role.");
+        }
+        user.setRole(role);
         return userRepository.save(user);
     }
 
@@ -67,8 +68,10 @@ public class AuthService {
         if (user == null) throw new RuntimeException("Aucun compte associé à cet email");
 
         String code = String.format("%06d", (int)(Math.random() * 1000000));
-        Instant expiry = Instant.now().plusSeconds(900);
-        resetCodes.put(code, new Object[]{ user.getUsername(), expiry });
+
+        user.setResetToken(code);
+        user.setResetTokenExpiry(Instant.now().plusSeconds(900));
+        userRepository.save(user);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
@@ -86,31 +89,53 @@ public class AuthService {
     }
 
     public void verifyResetCode(String code) {
-        Object[] entry = resetCodes.get(code.trim());
-        if (entry == null) throw new RuntimeException("Code invalide");
-        Instant expiry = (Instant) entry[1];
-        if (Instant.now().isAfter(expiry)) {
-            resetCodes.remove(code.trim());
+        User user = userRepository.findByResetToken(code.trim());
+        if (user == null) throw new RuntimeException("Code invalide");
+        if (Instant.now().isAfter(user.getResetTokenExpiry())) {
+            user.setResetToken(null);
+            user.setResetTokenExpiry(null);
+            userRepository.save(user);
             throw new RuntimeException("Code expiré");
         }
     }
 
     public void resetPassword(String code, String newPassword) {
-        Object[] entry = resetCodes.get(code.trim());
-        if (entry == null) throw new RuntimeException("Code invalide ou expiré");
-
-        Instant expiry = (Instant) entry[1];
-        if (Instant.now().isAfter(expiry)) {
-            resetCodes.remove(code.trim());
+        User user = userRepository.findByResetToken(code.trim());
+        if (user == null) throw new RuntimeException("Code invalide ou expiré");
+        if (Instant.now().isAfter(user.getResetTokenExpiry())) {
+            user.setResetToken(null);
+            user.setResetTokenExpiry(null);
+            userRepository.save(user);
             throw new RuntimeException("Code expiré");
         }
 
-        String username = (String) entry[0];
+        user.setPassword(encoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
+    }
+
+    public void changePassword(String username, String currentPassword, String newPassword) {
         User user = userRepository.findByUsername(username);
-        if (user == null) throw new RuntimeException("Utilisateur introuvable");
+        if (user == null) throw new RuntimeException("User not found");
+
+        if (!encoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
 
         user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
-        resetCodes.remove(code.trim());
+    }
+    public void updateProfile(String username, String name, String email) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) throw new RuntimeException("User not found");
+
+        if (email != null && !email.equals(user.getEmail())) {
+            User existingEmail = userRepository.findByEmail(email);
+            if (existingEmail != null) throw new RuntimeException("Email already exists");
+            user.setEmail(email);
+        }
+        if (name != null) user.setUsername(name);
+        userRepository.save(user);
     }
 }

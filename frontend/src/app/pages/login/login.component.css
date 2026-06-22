@@ -5,7 +5,6 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* This is the key fix - use :host for component background */
 :host {
     display: flex;
     justify-content: center;
@@ -26,7 +25,6 @@
     margin: 0 auto;
 }
 
-/* Left Section Styles */
 .left-box {
     flex: 1;
     color: white;
@@ -34,7 +32,6 @@
     padding: 40px;
 }
 
-/* Logo container with image */
 .logo-triangle {
     width: 250px;
     height: auto;
@@ -52,7 +49,6 @@
     max-height: 250px;
 }
 
-/* Adjusting the heading to match the image spacing */
 .left-box h1 {
     font-size: 32px;
     margin-bottom: 10px;
@@ -83,7 +79,6 @@
     opacity: 0.9;
 }
 
-/* Right Section (The White Form) */
 .right-box {
     flex: 1.2;
     background: #fdfdfd;
@@ -161,7 +156,6 @@ input::placeholder {
     text-decoration: underline;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
@@ -201,7 +195,6 @@ input::placeholder {
         margin-bottom: 20px;
     }
 }
-/* Remember Me */
 .remember-me {
   margin-bottom: 5px;
 }
@@ -252,7 +245,6 @@ input::placeholder {
   transform: rotate(45deg) translateY(-1px);
   display: block;
 }
-/* Forgot Password */
 .forgot-password {
   text-align: right;
   margin-top: -8px;

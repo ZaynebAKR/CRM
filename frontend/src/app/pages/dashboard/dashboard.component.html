@@ -1,0 +1,80 @@
+<div class="welcome-section">
+  <h1 class="welcome-title">Welcome, <span class="brand-text">{{ clientName }}</span></h1>
+  <p class="welcome-sub">Your Microsoft Subscription Portal — Managed by Insomea</p>
+</div>
+
+<div class="company-card">
+  <div class="company-logo-wrap">
+    <img src="assets/Societé.png" alt="Insomea" class="company-logo" />
+  </div>
+  <div class="company-info">
+    <h2 class="company-name">Insomea Computer Solutions</h2>
+    <p class="company-tagline">Your trusted Microsoft Cloud Partner</p>
+    <div class="company-tags">
+      <span class="ctag"><i class="fas fa-check-circle"></i> Active Account</span>
+      <span class="ctag"><i class="fas fa-euro-sign"></i> EUR</span>
+      <span class="ctag"><i class="fas fa-shield-alt"></i> Microsoft Partner</span>
+    </div>
+    <p class="company-desc">
+      Welcome to your dedicated portal. Here you can view your active subscriptions,
+      submit new license requests, and contact Insomea support.
+    </p>
+  </div>
+</div>
+<div class="carousel-section">
+  <div class="carousel-track" [style.transform]="'translateX(-' + (currentSlide * 100) + '%)'">
+
+    <div class="carousel-card">
+      <div class="carousel-icon icon-blue"><i class="fas fa-trophy"></i></div>
+      <h3 class="carousel-title">Microsoft Partner of the Year</h3>
+      <p class="carousel-text">Insomea won the Microsoft Partner of the Year Award for Tunisia and Bahrain in 2023, recognized among 4,200+ nominees worldwide for excellence in innovation.</p>
+      <div class="carousel-tag">🏆 Award Winner 2023</div>
+    </div>
+
+    <div class="carousel-card">
+      <div class="carousel-icon icon-teal"><i class="fas fa-cloud"></i></div>
+      <h3 class="carousel-title">Microsoft 365 — Work Smarter</h3>
+      <p class="carousel-text">Microsoft 365 brings together Word, Excel, Teams, Outlook and more — all in one subscription. Collaborate in real time from anywhere, on any device.</p>
+      <div class="carousel-tag">☁️ Microsoft 365</div>
+    </div>
+
+    <div class="carousel-card">
+      <div class="carousel-icon icon-purple"><i class="fas fa-shield-alt"></i></div>
+      <h3 class="carousel-title">Advanced Security Partner</h3>
+      <p class="carousel-text">Insomea holds Microsoft's Advanced Specialization in Security — meaning our team is certified to protect your organization against modern cyber threats.</p>
+      <div class="carousel-tag">🔒 Security Specialist</div>
+    </div>
+
+    <div class="carousel-card">
+      <div class="carousel-icon icon-amber"><i class="fas fa-globe-africa"></i></div>
+      <h3 class="carousel-title">Regional Presence — MEA</h3>
+      <p class="carousel-text">Operating across Tunisia, Bahrain and the wider Middle East & Africa region, Insomea is part of the Beyon Group — a leading digital transformation group in the Gulf.</p>
+      <div class="carousel-tag">🌍 Tunisia · Bahrain · MEA</div>
+    </div>
+
+    <div class="carousel-card">
+      <div class="carousel-icon icon-teal"><i class="fas fa-users"></i></div>
+      <h3 class="carousel-title">Microsoft Teams — Stay Connected</h3>
+      <p class="carousel-text">With Microsoft Teams included in your subscription, you get HD video meetings, chat, file sharing and app integrations — all in one secure platform.</p>
+      <div class="carousel-tag">💬 Microsoft Teams</div>
+    </div>
+
+    <div class="carousel-card">
+        <div class="carousel-content">
+      <div class="carousel-icon icon-blue"><i class="fas fa-server"></i></div>
+      <h3 class="carousel-title">Azure Cloud — Scale with Confidence</h3>
+      <p class="carousel-text">Microsoft Azure gives your business access to 200+ cloud services — from virtual machines to AI tools — with enterprise-grade security and 99.9% uptime SLA.</p>
+      <div class="carousel-tag">⚡ Microsoft Azure</div>
+        </div>
+    </div>
+
+  </div>
+
+  <div class="carousel-dots">
+    <span *ngFor="let dot of slides; let i = index"
+          class="dot"
+          [class.active]="i === currentSlide"
+          (click)="goToSlide(i)">
+    </span>
+  </div>
+</div>

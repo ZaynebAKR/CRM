@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'frontend';
+  
+  constructor(public router: Router) {}
+
+  get showChatbot(): boolean {
+    const hiddenRoutes = ['/login', '/register', '/aboutus'];
+    return !hiddenRoutes.some(route => this.router.url.startsWith(route));
+  }
 }

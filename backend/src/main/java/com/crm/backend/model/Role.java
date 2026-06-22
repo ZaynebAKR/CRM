@@ -1,8 +1,9 @@
 package com.crm.backend.model;
 
 public enum Role {
-    PARTENAIRES_COMMERCIAUX,
-    MICROSOFT,
-    INSOMEA,
+    ADMIN,
+    SALES,
+    FINANCE,
+    TECH,
     CLIENT
 }

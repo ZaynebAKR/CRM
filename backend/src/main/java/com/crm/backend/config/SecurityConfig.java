@@ -41,7 +41,25 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(
+                                "/auth/login", "/auth/register",
+                                "/auth/forgot-password", "/auth/verify-reset-code",
+                                "/auth/reset-password", "/api/chat",
+                                "/licenses/**" , "/api/stripe/**" ,
+                                "/auth/update-profile"
+                        ).permitAll()
+                        .requestMatchers("/admin/users/clients").hasAnyRole("ADMIN", "SALES", "FINANCE", "TECH")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/sales/invoices/client/**").hasAnyRole("CLIENT", "ADMIN", "FINANCE")
+                        .requestMatchers("/sales/invoices/**").hasAnyRole("SALES", "ADMIN", "FINANCE")
+                        .requestMatchers("/sales/**").hasRole("SALES")
+                        .requestMatchers("/finance/**").hasRole("FINANCE")
+                        .requestMatchers("/tech/**").hasRole("TECH")
+                        .requestMatchers("/client/**").hasRole("CLIENT")
+                        .requestMatchers("/licenses/tech/**").hasAnyRole("TECH", "ADMIN")
+                        .requestMatchers("/licenses/**").permitAll()
+                        .requestMatchers("/api/ai-analysis/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

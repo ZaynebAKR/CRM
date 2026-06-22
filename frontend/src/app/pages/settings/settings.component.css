@@ -1,0 +1,86 @@
+.settings-wrapper {
+  display: flex; align-items: center; justify-content: center;
+  min-height: calc(100vh - 64px); padding: 32px;
+}
+
+.settings-card {
+  display: flex; align-items: center; gap: 48px;
+  background: #fff; border-radius: 16px;
+  padding: 48px; box-shadow: 0 4px 24px rgba(0,0,0,.09);
+  max-width: 860px; width: 100%;
+}
+
+.settings-left { flex: 1; display: flex; justify-content: center; }
+.settings-illustration { width: 100%; max-width: 300px; object-fit: contain; }
+
+.settings-right { flex: 1; }
+
+.settings-title {
+  font-size: 1.4rem; font-weight: 700; color: #1a1a2e;
+  margin-bottom: 24px;
+}
+
+.alert {
+  padding: 10px 14px; border-radius: 8px; margin-bottom: 14px;
+  font-size: 0.83rem; font-weight: 500; display: flex; align-items: center; gap: 8px;
+}
+.alert-success { background: #E1F5EE; color: #0F6E56; }
+.alert-error   { background: #FCEBEB; color: #A32D2D; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block; font-size: 0.8rem; font-weight: 600;
+  color: #6b7280; margin-bottom: 6px;
+}
+
+.input-wrap {
+  display: flex; align-items: center;
+  border: 1.5px solid #e5e7eb; border-radius: 8px;
+  padding: 0 12px; background: #fff;
+  transition: border-color .15s;
+}
+.input-wrap:focus-within { border-color: #167A76; }
+
+.input-icon { color: #6b7280; font-size: 0.85rem; margin-right: 8px; }
+
+.input-wrap input {
+  flex: 1; border: none; outline: none;
+  padding: 10px 0; font-size: 0.88rem; color: #1a1a2e;
+  background: transparent;
+}
+
+.toggle-show {
+  font-size: 0.78rem; font-weight: 600; color: #167A76;
+  cursor: pointer; white-space: nowrap; user-select: none;
+}
+.toggle-show:hover { color: #0f5c59; }
+
+.mismatch-error {
+  font-size: 0.78rem; color: #e53e3e; margin-top: 6px;
+}
+
+.form-actions {
+  display: flex; gap: 12px; margin-top: 24px;
+}
+
+.btn-close {
+  flex: 1; padding: 10px; border-radius: 8px;
+  border: 1.5px solid #e5e7eb; background: #fff;
+  color: #6b7280; font-size: 0.88rem; font-weight: 500;
+  cursor: pointer; transition: all .15s;
+}
+.btn-close:hover { background: #f9fafb; border-color: #d1d5db; }
+
+.btn-submit {
+  flex: 1; padding: 10px; border-radius: 8px;
+  border: none; background: #167A76;
+  color: #fff; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn-submit:hover { background: #0f5c59; }
+.settings-wrapper {
+  display: flex; align-items: center; justify-content: center;
+  min-height: calc(100vh - 64px); padding: 32px;
+  align-items: flex-start;
+  padding-top: 60px;
+}

@@ -34,9 +34,9 @@ requestReset() {
       this.step = 2;
     },
     error: (err) => {
-      console.log("❌ Full error object:", err);
-      console.log("❌ err.status:", err.status);
-      console.log("❌ err.error:", err.error);
+      console.log(" Full error object:", err);
+      console.log(" err.status:", err.status);
+      console.log(" err.error:", err.error);
       this.loading = false;
       alert(err.error?.message ?? "Email non trouvé.");
     }
@@ -63,8 +63,8 @@ verifyCode() {
 }
 
   resetPassword() {
-      console.log("🔑 Code being sent:", this.code);
-      console.log("🔑 Code length:", this.code?.length);
+      console.log(" Code being sent:", this.code);
+      console.log(" Code length:", this.code?.length);
       
   if (!this.newPassword || !this.confirmPassword) {
     alert("Veuillez remplir tous les champs !");

@@ -1,0 +1,208 @@
+<div class="optimizer-container">
+
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">
+        <span class="ai-icon">🤖</span>
+        AI License Optimizer
+      </h1>
+      <p class="page-subtitle" *ngIf="role === 'SALES'">Build your cart and let AI optimize your Microsoft NCE proposal</p>
+      <p class="page-subtitle" *ngIf="role === 'ADMIN'">Describe a client's license situation for an AI audit</p>
+      <p class="page-subtitle" *ngIf="role === 'CLIENT'">Describe your current licenses and get personalized savings advice</p>
+    </div>
+    <div class="role-badge" [ngClass]="'badge-' + role.toLowerCase()">{{ role }}</div>
+  </div>
+
+  <div *ngIf="role === 'SALES'" class="sales-view">
+    <div class="two-column">
+
+      <div class="panel">
+        <div class="panel-title">
+          <i class="fas fa-search"></i> Product Catalog
+        </div>
+
+        <div class="search-box">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search products (e.g. Microsoft 365, Teams...)"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="searchProducts()"
+          />
+        </div>
+
+        <div class="product-list">
+          <div
+            class="product-item"
+            *ngFor="let p of filteredProducts"
+            (click)="addToCart(p)"
+          >
+            <div class="product-info">
+              <div class="product-name">{{ p.Name }}</div>
+              <div class="product-meta">
+                <span class="family-tag">{{ p.Family }}</span>
+                <span class="billing-tag">{{ p.BillingCycle }}</span>
+              </div>
+            </div>
+            <div class="product-price">
+              {{ formatEur(p.ListPrice) }}
+              <span class="per-user">/user</span>
+            </div>
+            <button class="add-btn">+</button>
+          </div>
+
+          <div *ngIf="filteredProducts.length === 0" class="empty-search">
+            No products found. Try a different search term.
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <i class="fas fa-shopping-cart"></i> Your Cart
+          <span class="cart-count" *ngIf="cart.length > 0">{{ cart.length }}</span>
+        </div>
+
+        <div *ngIf="cart.length === 0" class="empty-cart">
+          <div class="empty-icon">🛒</div>
+          <p>Click products to add them to your cart</p>
+        </div>
+
+        <div class="cart-list" *ngIf="cart.length > 0">
+          <div class="cart-item" *ngFor="let item of cart; let i = index">
+            <div class="cart-item-info">
+              <div class="cart-item-name">{{ item.product.Name }}</div>
+              <div class="cart-item-price">{{ formatEur(item.product.ListPrice) }}/user × {{ item.quantity }} = {{ formatEur(item.product.ListPrice * item.quantity) }}</div>
+            </div>
+            <div class="cart-item-controls">
+              <button class="qty-btn" (click)="updateQuantity(i, item.quantity - 1)">−</button>
+              <input type="number" class="qty-input" [(ngModel)]="item.quantity" min="1" (change)="updateQuantity(i, item.quantity)" />
+              <button class="qty-btn" (click)="updateQuantity(i, item.quantity + 1)">+</button>
+              <button class="remove-btn" (click)="removeFromCart(i)">🗑</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cart-total" *ngIf="cart.length > 0">
+          <span>Total / month</span>
+          <span class="total-amount">{{ formatEur(cartTotal) }}</span>
+        </div>
+
+        <div class="action-buttons" *ngIf="cart.length > 0">
+          <button class="btn-analyze" (click)="analyzeCart()" [disabled]="analyzing">
+            <span *ngIf="!analyzing"><i class="fas fa-magic"></i> Analyze with AI</span>
+            <span *ngIf="analyzing"><i class="fas fa-spinner fa-spin"></i> Analyzing...</span>
+          </button>
+          <button class="btn-clear" (click)="clearAll()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- -->
+  <div *ngIf="role === 'ADMIN'" class="admin-view">
+    <div class="panel full-width">
+      <div class="panel-title"><i class="fas fa-chart-bar"></i> License Audit Tool</div>
+      <p class="panel-desc">Describe a client's current license situation. Include: company size, products they use, quantities, how long they've had the licenses, any concerns about costs.</p>
+      <textarea
+        class="manual-input"
+        [(ngModel)]="manualInput"
+        placeholder="Example: Client ABC has 50 Microsoft 365 E3 licenses (€418.8/year each) but only 31 users are active. They also have Teams Phone Standard for all 50 users. Contract renews in 2 months."
+        rows="6"
+      ></textarea>
+      <div class="action-buttons">
+        <button class="btn-analyze" (click)="analyzeCart()" [disabled]="analyzing || !manualInput.trim()">
+          <span *ngIf="!analyzing"><i class="fas fa-search"></i> Run AI Audit</span>
+          <span *ngIf="analyzing"><i class="fas fa-spinner fa-spin"></i> Analyzing...</span>
+        </button>
+        <button class="btn-clear" (click)="clearAll()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!--  -->
+  <div *ngIf="role === 'CLIENT'" class="client-view">
+    <div class="panel full-width">
+      <div class="panel-title"><i class="fas fa-user-check"></i> My License Review</div>
+      <p class="panel-desc">Tell us about your current Microsoft licenses. We'll help you identify savings and ensure you have the right products for your needs.</p>
+      <textarea
+        class="manual-input"
+        [(ngModel)]="manualInput"
+        placeholder="Example: We have 20 Microsoft 365 Business Standard licenses. We use mostly email and Teams. We haven't used OneDrive much and nobody uses Bookings. Our monthly cost is around €260."
+        rows="6"
+      ></textarea>
+      <div class="action-buttons">
+        <button class="btn-analyze" (click)="analyzeCart()" [disabled]="analyzing || !manualInput.trim()">
+          <span *ngIf="!analyzing"><i class="fas fa-lightbulb"></i> Get AI Recommendations</span>
+          <span *ngIf="analyzing"><i class="fas fa-spinner fa-spin"></i> Analyzing...</span>
+        </button>
+        <button class="btn-clear" (click)="clearAll()">Clear</button>
+      </div>
+    </div>
+  </div>
+  <div class="error-banner" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+  </div>
+
+  <div class="results-section" *ngIf="aiResult">
+
+    <div class="summary-card">
+      <div class="summary-icon">🤖</div>
+      <div class="summary-content">
+        <div class="summary-label">AI Analysis Summary</div>
+        <div class="summary-text">{{ aiResult.summary }}</div>
+      </div>
+      <div class="summary-savings" *ngIf="role === 'SALES' && aiResult.totalOptimized > 0 && aiResult.totalOptimized < aiResult.totalCurrent">
+        <div class="saving-label">Potential saving</div>
+        <div class="saving-amount">{{ formatEur(aiResult.totalCurrent - aiResult.totalOptimized) }}/month</div>
+      </div>
+    </div>
+
+    <div class="all-good" *ngIf="aiResult.optimizations.length === 0">
+      <span class="good-icon">✅</span>
+      <span>Your license configuration looks well optimized!</span>
+    </div>
+
+    <div class="optimizations-grid" *ngIf="aiResult.optimizations.length > 0">
+      <div class="optimization-title">
+        <i class="fas fa-lightbulb"></i>
+        {{ aiResult.optimizations.length }} Recommendation(s) Found
+      </div>
+
+      <div
+        class="opt-card"
+        *ngFor="let opt of aiResult.optimizations"
+        [style.border-left-color]="getActionColor(opt.action)"
+      >
+        <div class="opt-header">
+          <span class="opt-icon">{{ getTypeIcon(opt.type) }}</span>
+          <span class="opt-type">{{ opt.type.replace('_', ' ') }}</span>
+          <span class="opt-action" [style.background]="getActionColor(opt.action)">{{ opt.action }}</span>
+        </div>
+        <div class="opt-message">{{ opt.message }}</div>
+        <div class="opt-saving" *ngIf="opt.saving">
+          <i class="fas fa-euro-sign"></i> Estimated saving: <strong>{{ opt.saving }}</strong>
+        </div>
+      </div>
+    </div>
+
+<div class="result-actions" *ngIf="aiResult">
+  <button class="btn-save" (click)="saveAnalysis()">
+    <i class="fas fa-save"></i> Save Analysis
+  </button>
+  <button class="btn-pdf" (click)="exportPDF()">
+    <i class="fas fa-file-pdf"></i> Export PDF
+  </button>
+</div>
+
+<div class="toast-success" *ngIf="saveSuccess">
+  <i class="fas fa-check-circle"></i> Analysis saved successfully!
+</div>
+
+<div class="disclaimer">
+  <i class="fas fa-info-circle"></i>
+  AI recommendations are for guidance only. Always verify with Microsoft licensing documentation before applying changes.
+</div>
+  </div>
+
+</div>

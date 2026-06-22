@@ -1,0 +1,258 @@
+<div class="page-header">
+  <h1 class="page-title"><i class="fas fa-file-invoice-dollar"></i> Sales Dashboard</h1>
+  <p class="page-subtitle">Manage invoices for your clients</p>
+</div>
+
+<div class="alert alert-success" *ngIf="successMessage">
+  <i class="fas fa-check-circle"></i> {{ successMessage }}
+</div>
+<div class="alert alert-error" *ngIf="errorMessage">
+  <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+</div>
+
+<div class="tabs">
+  <button class="tab-btn" [class.active]="activeTab === 'list'" (click)="activeTab = 'list'">
+    <i class="fas fa-list"></i> My Invoices
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'create'" (click)="activeTab = 'create'">
+    <i class="fas fa-plus"></i> Create Invoice
+  </button>
+</div>
+
+<div *ngIf="activeTab === 'list'">
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search invoices..." [(ngModel)]="searchInvoice" />
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="loading" *ngIf="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+    <table *ngIf="!loading">
+      <thead>
+        <tr>
+          <th>Invoice #</th>
+          <th>Client</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Issue Date</th>
+          <th>Due Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let inv of filteredInvoices">
+          <td><strong>{{ inv.invoiceNumber }}</strong></td>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">{{ inv.client?.username?.charAt(0)?.toUpperCase() }}</div>
+              {{ inv.client?.username }}
+            </div>
+          </td>
+          <td><strong>{{ inv.totalAmount | number:'1.2-2' }} {{ inv.currency }}</strong></td>
+          <td><span class="status-badge" [ngClass]="getStatusClass(inv.status || '')">{{ inv.status }}</span></td>
+          <td>{{ inv.issueDate }}</td>
+          <td>{{ inv.dueDate }}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-action view" (click)="openDetail(inv)" title="View">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn-action edit" (click)="updateStatus(inv, 'SENT')"
+                *ngIf="inv.status === 'DRAFT'" title="Mark as Sent">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+                <button class="btn-action delete" (click)="confirmDelete(inv.id!)"
+                *ngIf="inv.status === 'DRAFT'" title="Delete">
+                <i class="fas fa-trash"></i>
+                </button>
+<div class="modal-overlay" *ngIf="showDeleteModal">
+  <div class="modal modal-sm">
+    <div class="modal-header danger">
+      <h3><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h3>
+    </div>
+    <div class="modal-body" style="text-align:center; padding: 28px 22px;">
+      <div style="font-size: 48px; color: #e74c3c; margin-bottom: 12px;">
+        <i class="fas fa-trash-alt"></i>
+      </div>
+      <p style="font-size: 16px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px;">
+        Are you sure?
+      </p>
+      <p style="font-size: 14px; color: #888;">
+        This invoice will be permanently deleted. This action cannot be undone.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showDeleteModal = false; invoiceToDelete = null">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      <button class="btn-delete" (click)="executeDelete()">
+        <i class="fas fa-trash"></i> Yes, Delete
+      </button>
+    </div>
+  </div>
+</div>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredInvoices.length === 0">
+          <td colspan="7" class="empty">No invoices found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="activeTab === 'create'" class="create-layout">
+
+  <div class="create-left">
+    <div class="form-card">
+      <div class="form-card-header"><i class="fas fa-user"></i> Invoice Details</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Client *</label>
+          <select [(ngModel)]="form.clientId">
+            <option [ngValue]="null">-- Select Client --</option>
+            <option *ngFor="let c of clients" [ngValue]="c.id">{{ c.username }} ({{ c.email }})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Currency</label>
+          <select [(ngModel)]="form.currency">
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+            <option value="TND">TND</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Due Date *</label>
+          <input type="date" [(ngModel)]="form.dueDate" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea [(ngModel)]="form.notes" rows="2" placeholder="Optional notes..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-header">
+        <i class="fas fa-shopping-cart"></i> Products Cart
+        <span class="cart-count" *ngIf="cartItems.length > 0">{{ cartItems.length }}</span>
+      </div>
+
+      <div class="empty-cart" *ngIf="cartItems.length === 0">
+        <i class="fas fa-box-open"></i>
+        <p>No products added yet. Use the catalog on the right.</p>
+      </div>
+
+      <div class="cart-item" *ngFor="let item of cartItems; let i = index">
+        <div class="cart-item-info">
+          <div class="cart-item-name">{{ item.productName }}</div>
+          <div class="cart-item-meta">{{ item.partNumber }} · {{ item.billingCycle }}</div>
+        </div>
+        <div class="cart-item-controls">
+          <button (click)="updateQuantity(item, item.quantity - 1)"><i class="fas fa-minus"></i></button>
+          <input type="number" [value]="item.quantity"
+            (change)="updateQuantity(item, +$any($event.target).value)" min="1" />
+          <button (click)="updateQuantity(item, item.quantity + 1)"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="cart-item-price">{{ item.totalPrice | number:'1.2-2' }} {{ form.currency }}</div>
+        <button class="cart-remove" (click)="removeFromCart(i)"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="cart-total" *ngIf="cartItems.length > 0">
+        <span>Total:</span>
+        <strong>{{ cartTotal | number:'1.2-2' }} {{ form.currency }}</strong>
+      </div>
+
+      <button class="btn-submit" (click)="submitInvoice()" [disabled]="cartItems.length === 0">
+        <i class="fas fa-file-invoice"></i> Generate Invoice
+      </button>
+    </div>
+  </div>
+
+  <div class="create-right">
+    <div class="form-card catalog-card">
+      <div class="form-card-header"><i class="fas fa-tags"></i> Product Catalog</div>
+      <div class="search-box catalog-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search products..." [(ngModel)]="productSearch"
+          (input)="searchProducts()" />
+      </div>
+      <div class="catalog-list">
+        <div class="catalog-item" *ngFor="let p of filteredProducts | slice:0:100">
+          <div class="catalog-item-info">
+            <div class="catalog-item-name">{{ p.Name }}</div>
+            <div class="catalog-item-meta">
+              <span class="tag">{{ p.Family }}</span>
+              <span class="tag">{{ p.BillingCycle }}</span>
+              <span class="tag">{{ p.Term }}</span>
+            </div>
+            <div class="catalog-item-price">{{ p.ListPrice | number:'1.2-2' }} {{ p.Currency }}</div>
+          </div>
+          <button class="btn-add-cart" (click)="addToCart(p)" title="Add to cart">
+            <i class="fas fa-cart-plus"></i>
+          </button>
+        </div>
+        <div class="empty" *ngIf="filteredProducts.length === 0">No products found.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="showDetailModal = false">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-file-invoice"></i> {{ selectedInvoice?.invoiceNumber }}</h3>
+      <button class="close-btn" (click)="showDetailModal = false"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="selectedInvoice">
+      <div class="invoice-meta">
+        <div><label>Client</label><span>{{ selectedInvoice.client?.username }}</span></div>
+        <div><label>Email</label><span>{{ selectedInvoice.client?.email }}</span></div>
+        <div><label>Status</label>
+          <span class="status-badge" [ngClass]="getStatusClass(selectedInvoice.status || '')">
+            {{ selectedInvoice.status }}
+          </span>
+        </div>
+        <div><label>Issue Date</label><span>{{ selectedInvoice.issueDate }}</span></div>
+        <div><label>Due Date</label><span>{{ selectedInvoice.dueDate }}</span></div>
+        <div><label>Total</label>
+          <strong>{{ selectedInvoice.totalAmount | number:'1.2-2' }} {{ selectedInvoice.currency }}</strong>
+        </div>
+      </div>
+      <div *ngIf="selectedInvoice.notes" class="invoice-notes">
+        <strong>Notes:</strong> {{ selectedInvoice.notes }}
+      </div>
+      <table class="items-table">
+        <thead>
+          <tr><th>Product</th><th>Part #</th><th>Cycle</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of selectedInvoice.items">
+            <td>{{ item.productName }}</td>
+            <td>{{ item.partNumber }}</td>
+            <td>{{ item.billingCycle }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unitPrice | number:'1.2-2' }}</td>
+            <td><strong>{{ item.totalPrice | number:'1.2-2' }}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showDetailModal = false">Close</button>
+      <button class="btn-save" *ngIf="selectedInvoice?.status === 'DRAFT'"
+        (click)="updateStatus(selectedInvoice!, 'SENT'); showDetailModal = false">
+        <i class="fas fa-paper-plane"></i> Send to Client
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,318 @@
-<p>client-dashboard works!</p>
+<div class="page-header">
+  <h1 class="page-title">My Portal</h1>
+  <p class="page-subtitle">Manage your licenses and invoices</p>
+</div>
+
+<div class="alert alert-success" *ngIf="successMessage">
+  <i class="fas fa-check-circle"></i> {{ successMessage }}
+</div>
+<div class="alert alert-error" *ngIf="errorMessage">
+  <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-icon icon-blue"><i class="fas fa-check-circle"></i></div>
+    <div class="kpi-body">
+      <span class="kpi-label">Active Licenses</span>
+      <span class="kpi-value">{{ activeLicenses }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon icon-amber"><i class="fas fa-exclamation-triangle"></i></div>
+    <div class="kpi-body">
+      <span class="kpi-label">Expiring Soon</span>
+      <span class="kpi-value">{{ expiringSoonCount }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon icon-red"><i class="fas fa-times-circle"></i></div>
+    <div class="kpi-body">
+      <span class="kpi-label">Expired</span>
+      <span class="kpi-value">{{ expiredCount }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon icon-orange"><i class="fas fa-file-invoice-dollar"></i></div>
+    <div class="kpi-body">
+      <span class="kpi-label">Pending Invoices</span>
+      <span class="kpi-value">{{ pendingInvoices }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon icon-green"><i class="fas fa-check"></i></div>
+    <div class="kpi-body">
+      <span class="kpi-label">Paid Invoices</span>
+      <span class="kpi-value">{{ paidInvoices }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn" [class.active]="activeTab === 'licenses'" (click)="activeTab = 'licenses'">
+    <i class="fas fa-key"></i> My Licenses
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'invoices'" (click)="activeTab = 'invoices'">
+    <i class="fas fa-file-invoice"></i> My Invoices
+    <span class="tab-badge" *ngIf="pendingInvoices > 0">{{ pendingInvoices }}</span>
+  </button>
+</div>
+
+<div *ngIf="activeTab === 'licenses'">
+  <div class="action-bar">
+    <button class="btn-request" (click)="showRequestForm = !showRequestForm">
+      <i class="fas fa-plus"></i> Request New License
+    </button>
+  </div>
+
+  <div class="request-form" *ngIf="showRequestForm">
+    <h3>New License Request</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Product Name</label>
+        <input type="text" [(ngModel)]="newLicense.productName" placeholder="e.g. Microsoft 365 Business Basic" />
+      </div>
+      <div class="form-group">
+        <label>Part Number</label>
+        <input type="text" [(ngModel)]="newLicense.partNumber" placeholder="e.g. CFQ7TTC0LH18:0001" />
+      </div>
+      <div class="form-group">
+        <label>Billing Cycle</label>
+        <select [(ngModel)]="newLicense.billingCycle">
+          <option value="Monthly">Monthly</option>
+          <option value="Annual">Annual</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Term</label>
+        <input type="text" [(ngModel)]="newLicense.term" placeholder="e.g. 1 Month" />
+      </div>
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" [(ngModel)]="newLicense.quantity" min="1" />
+      </div>
+      <div class="form-group">
+        <label>Unit Price (€)</label>
+        <input type="number" [(ngModel)]="newLicense.unitPrice" min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>Total Price (€)</label>
+        <input type="number" [(ngModel)]="newLicense.totalPrice" min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>Currency</label>
+        <select [(ngModel)]="newLicense.currency">
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Start Date</label>
+        <input type="date" [(ngModel)]="newLicense.startDate" />
+      </div>
+      <div class="form-group">
+        <label>Expiry Date</label>
+        <input type="date" [(ngModel)]="newLicense.expiryDate" />
+      </div>
+    </div>
+    <button class="btn-submit" (click)="submitRequest()">Submit Request</button>
+    <button class="btn-cancel" (click)="showRequestForm = false; resetForm()">Cancel</button>
+  </div>
+
+  <div class="table-panel">
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="spinner"></div><p>Loading licenses...</p>
+    </div>
+    <table class="data-table" *ngIf="!loading">
+      <thead>
+        <tr>
+          <th>Product</th><th>Billing</th><th>Qty</th>
+          <th>Unit Price</th><th>Total</th>
+          <th>Start</th><th>Expiry</th>
+          <th>Status</th><th>Payment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let license of licenses">
+          <td>{{ license.productName }}</td>
+          <td>{{ license.billingCycle }}</td>
+          <td>{{ license.quantity }}</td>
+          <td>{{ formatPrice(license.unitPrice) }}</td>
+          <td>{{ formatPrice(license.totalPrice) }}</td>
+          <td>{{ license.startDate }}</td>
+          <td>{{ license.expiryDate }}</td>
+          <td>
+            <span class="badge" [ngClass]="getStatusClass(license)">
+              <span *ngIf="isExpired(license.expiryDate)">Expired</span>
+              <span *ngIf="isExpiringSoon(license.expiryDate) && !isExpired(license.expiryDate)">⚠ Expiring Soon</span>
+              <span *ngIf="!isExpired(license.expiryDate) && !isExpiringSoon(license.expiryDate)">Active</span>
+            </span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getPaymentClass(license.paymentStatus)">
+              {{ license.paymentStatus }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="licenses.length === 0">
+          <td colspan="9" class="empty-row">No licenses found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="activeTab === 'invoices'">
+  <div class="table-panel">
+    <div class="loading-overlay" *ngIf="loadingInvoices">
+      <div class="spinner"></div><p>Loading invoices...</p>
+    </div>
+    <table class="data-table" *ngIf="!loadingInvoices">
+      <thead>
+        <tr>
+          <th>Invoice #</th><th>Total</th><th>Status</th>
+          <th>Issue Date</th><th>Due Date</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let inv of invoices">
+          <td><strong>{{ inv.invoiceNumber }}</strong></td>
+          <td><strong>{{ inv.totalAmount | number:'1.2-2' }} {{ inv.currency }}</strong></td>
+          <td>
+            <span class="badge" [ngClass]="getInvoiceStatusClass(inv.status || '')">
+              {{ inv.status }}
+            </span>
+          </td>
+          <td>{{ inv.issueDate }}</td>
+          <td>{{ inv.dueDate }}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-action view" (click)="openDetail(inv)" title="View">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn-action pdf" (click)="downloadInvoicePDF(inv)" title="Download PDF">
+                <i class="fas fa-file-pdf"></i>
+              </button>
+              <button class="btn-action pay" (click)="openPayModal(inv)"
+                *ngIf="inv.status === 'SENT'" title="Pay Now">
+                <i class="fas fa-credit-card"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="invoices.length === 0">
+          <td colspan="6" class="empty-row">No invoices found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showPayModal">
+  <div class="modal pay-modal">
+    <div class="modal-header pay-header">
+      <h3><i class="fas fa-credit-card"></i> Pay Invoice</h3>
+      <button class="close-btn" (click)="closePayModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="payingInvoice">
+
+      <div class="pay-success" *ngIf="paymentSuccess">
+        <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+        <h3>Payment Successful!</h3>
+        <p>Invoice <strong>{{ payingInvoice.invoiceNumber }}</strong> has been paid.</p>
+        <button class="btn-close-success" (click)="closePayModal()">Close</button>
+      </div>
+
+      <div *ngIf="!paymentSuccess">
+        <div class="invoice-summary">
+          <div class="summary-row">
+            <span>Invoice</span>
+            <strong>{{ payingInvoice.invoiceNumber }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Amount</span>
+            <strong class="amount">{{ payingInvoice.totalAmount | number:'1.2-2' }} {{ payingInvoice.currency }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Due Date</span>
+            <span>{{ payingInvoice.dueDate }}</span>
+          </div>
+        </div>
+
+        <div class="stripe-info">
+          <div class="stripe-logo">
+            <i class="fas fa-lock"></i> Secured by <strong>Stripe</strong>
+          </div>
+          <p class="test-info">
+            <i class="fas fa-info-circle"></i>
+            Test mode — use card: <code>4242 4242 4242 4242</code> · Any future date · Any CVC
+          </p>
+        </div>
+
+        <div class="stripe-form">
+          <div id="stripe-card-element" class="stripe-element"></div>
+          <div id="stripe-errors" class="stripe-error"></div>
+        </div>
+
+        <button class="btn-pay" (click)="processStripePayment()" [disabled]="paymentLoading">
+          <span *ngIf="paymentLoading"><i class="fas fa-spinner fa-spin"></i> Processing...</span>
+          <span *ngIf="!paymentLoading">
+            <i class="fas fa-lock"></i>
+            Pay {{ payingInvoice.totalAmount | number:'1.2-2' }} {{ payingInvoice.currency }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="showDetailModal = false">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-file-invoice"></i> {{ selectedInvoice?.invoiceNumber }}</h3>
+      <button class="close-btn" (click)="showDetailModal = false"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="selectedInvoice">
+      <div class="invoice-meta">
+        <div><label>Invoice #</label><span>{{ selectedInvoice.invoiceNumber }}</span></div>
+        <div><label>Status</label>
+          <span class="badge" [ngClass]="getInvoiceStatusClass(selectedInvoice.status || '')">
+            {{ selectedInvoice.status }}
+          </span>
+        </div>
+        <div><label>Issue Date</label><span>{{ selectedInvoice.issueDate }}</span></div>
+        <div><label>Due Date</label><span>{{ selectedInvoice.dueDate }}</span></div>
+        <div><label>Total</label>
+          <strong style="color:#378ADD; font-size:16px;">
+            {{ selectedInvoice.totalAmount | number:'1.2-2' }} {{ selectedInvoice.currency }}
+          </strong>
+        </div>
+      </div>
+      <table class="items-table">
+        <thead>
+          <tr><th>Product</th><th>Part #</th><th>Billing</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of selectedInvoice.items">
+            <td>{{ item.productName }}</td>
+            <td>{{ item.partNumber }}</td>
+            <td>{{ item.billingCycle }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unitPrice | number:'1.2-2' }}</td>
+            <td><strong>{{ item.totalPrice | number:'1.2-2' }}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showDetailModal = false">Close</button>
+      <button class="btn-pdf" (click)="downloadInvoicePDF(selectedInvoice!)">
+        <i class="fas fa-file-pdf"></i> Download PDF
+      </button>
+      <button class="btn-pay-modal" *ngIf="selectedInvoice?.status === 'SENT'"
+        (click)="showDetailModal = false; openPayModal(selectedInvoice!)">
+        <i class="fas fa-credit-card"></i> Pay Now
+      </button>
+    </div>
+  </div>
+</div>

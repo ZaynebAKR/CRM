@@ -1,0 +1,158 @@
+<div class="loading-overlay" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading catalog…</p>
+</div>
+
+<div *ngIf="!loading">
+
+  <div class="page-header">
+    <h1 class="page-title">Microsoft NCE Pricelist</h1>
+    <p class="page-subtitle">Commercial · EUR · {{ totalProducts }} products</p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon icon-blue"><i class="fas fa-box-open"></i></div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total products</span>
+        <span class="kpi-value">{{ totalProducts }}</span>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon icon-teal"><i class="fas fa-euro-sign"></i></div>
+      <div class="kpi-body">
+        <span class="kpi-label">Average price</span>
+        <span class="kpi-value">{{ avgPrice }}</span>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon icon-purple"><i class="fas fa-tags"></i></div>
+      <div class="kpi-body">
+        <span class="kpi-label">Subscriptions</span>
+        <span class="kpi-value">{{ totalSubscriptions }}</span>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon icon-amber"><i class="fas fa-sync-alt"></i></div>
+      <div class="kpi-body">
+        <span class="kpi-label">Monthly billing</span>
+        <span class="kpi-value">{{ monthlyPct }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-panel">
+      <div class="panel-title">Top 8 families</div>
+      <div style="position:relative; height:280px;">
+        <canvas #barCanvas></canvas>
+      </div>
+    </div>
+    <div class="chart-panel">
+      <div class="panel-title">Price ranges</div>
+      <div style="position:relative; height:280px;">
+        <canvas #donutCanvas></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-panel">
+    <div class="table-header">
+      <span class="panel-title">Product catalog</span>
+      <span class="result-count">{{ filteredProducts.length }} result(s)</span>
+    </div>
+
+    <div class="filters-row">
+      <input class="input-search" type="text" placeholder="Search..."
+        [(ngModel)]="filter.search" (ngModelChange)="onFilterChange()" />
+      <select class="filter-select" [(ngModel)]="filter.family" (ngModelChange)="onFilterChange()">
+        <option value="">All families</option>
+        <option *ngFor="let f of families" [value]="f">{{ f }}</option>
+      </select>
+      <select class="filter-select" [(ngModel)]="filter.billingCycle" (ngModelChange)="onFilterChange()">
+        <option value="">Billing</option>
+        <option value="Monthly">Monthly</option>
+        <option value="Annual">Annual</option>
+        <option value="ThreeYears">3 years</option>
+      </select>
+      <select class="filter-select" [(ngModel)]="filter.productType" (ngModelChange)="onFilterChange()">
+        <option value="">Type</option>
+        <option value="Subscription">Subscription</option>
+        <option value="Subscription Add-On">Add-On</option>
+      </select>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Family</th>
+            <th>Type</th>
+            <th>Billing</th>
+            <th class="text-right">List price</th>
+            <th class="text-right">Purchase price</th>
+            <th class="text-center">Detail</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of pagedProducts" class="table-row">
+            <td class="td-name" [title]="p.Name">{{ p.Name }}</td>
+            <td><span class="family-badge">{{ p.Family }}</span></td>
+            <td><span class="tag" [ngClass]="typeClass(p.ProductType)">
+              {{ p.ProductType === 'Subscription' ? 'Subscription' : 'Add-On' }}
+            </span></td>
+            <td><span class="tag" [ngClass]="billingClass(p.BillingCycle)">
+              {{ billingLabel(p.BillingCycle) }}
+            </span></td>
+            <td class="text-right td-price">{{ formatEur(p.ListPrice) }}</td>
+            <td class="text-right td-muted">{{ formatEur(p.PurchasePrice) }}</td>
+            <td class="text-center">
+              <button class="btn-detail" (click)="openDetail(p)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="pagedProducts.length === 0">
+            <td colspan="7" class="empty-row">No products found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="pg-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">←</button>
+      <span class="pg-info">Page {{ currentPage }} / {{ totalPages }}</span>
+      <button class="pg-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">→</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" *ngIf="selectedProduct" (click)="closeDetail()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ selectedProduct.Name }}</h2>
+      <button class="modal-close" (click)="closeDetail()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-prices">
+        <div class="modal-price-card">
+          <span class="modal-price-label">List price</span>
+          <span class="modal-price-val">{{ formatEur(selectedProduct.ListPrice) }}</span>
+        </div>
+        <div class="modal-price-card accent">
+          <span class="modal-price-label">Purchase price</span>
+          <span class="modal-price-val">{{ formatEur(selectedProduct.PurchasePrice) }}</span>
+        </div>
+      </div>
+      <table class="modal-table">
+        <tr><td>Family</td><td>{{ selectedProduct.Family }}</td></tr>
+        <tr><td>Type</td><td>{{ selectedProduct.ProductType }}</td></tr>
+        <tr><td>Billing</td><td>{{ billingLabel(selectedProduct.BillingCycle) }}</td></tr>
+        <tr><td>Term</td><td>{{ selectedProduct.Term }}</td></tr>
+        <tr><td>Reference</td><td>{{ selectedProduct.PartNumber }}</td></tr>
+      </table>
+    </div>
+  </div>
+</div>

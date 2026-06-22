@@ -1,14 +1,11 @@
-<!-- Floating Launch Button -->
 <div class="chat-launcher" (click)="toggleChat()" [class.open]="isChatOpen">
   <i class="fas fa-comments" *ngIf="!isChatOpen"></i>
   <i class="fas fa-times" *ngIf="isChatOpen"></i>
   <span class="badge" *ngIf="unreadCount > 0 && !isChatOpen">{{ unreadCount }}</span>
 </div>
 
-<!-- Chat Window -->
 <div class="chat-window" [class.visible]="isChatOpen">
 
-  <!-- Header -->
   <div class="chat-header">
     <div class="header-left">
       <div class="header-avatar">
@@ -32,10 +29,8 @@
     </div>
   </div>
 
-  <!-- Messages Area -->
   <div class="chat-messages" #messagesContainer>
 
-    <!-- Welcome screen -->
     <div class="welcome" *ngIf="messages.length === 0">
       <div class="welcome-icon"><i class="fas fa-robot"></i></div>
       <h4>Hello! 👋</h4>
@@ -47,7 +42,6 @@
       </div>
     </div>
 
-    <!-- Messages -->
     <div
       *ngFor="let msg of messages"
       class="message"
@@ -64,7 +58,6 @@
       </div>
     </div>
 
-    <!-- Typing indicator -->
     <div class="message bot" *ngIf="isTyping">
       <div class="avatar"><i class="fas fa-robot"></i></div>
       <div class="bubble typing">
@@ -72,14 +65,12 @@
       </div>
     </div>
 
-    <!-- Error -->
     <div class="error-msg" *ngIf="errorMessage">
       <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
     </div>
 
   </div>
 
-  <!-- Input Area -->
   <div class="chat-input">
     <div class="input-row">
 <textarea

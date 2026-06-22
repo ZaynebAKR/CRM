@@ -1,0 +1,136 @@
+<div class="layout">
+
+  <header class="top-header">
+    <div class="header-left">
+      <img src="assets/Societé.png" alt="Insomea Logo" class="logo-img" />
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" title="Profile Settings" routerLink="/settings">
+        <i class="fas fa-cog"></i>
+      </button>
+      <button class="btn-logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="body-wrapper">
+
+    <aside class="sidebar">
+
+      <div class="sidebar-profile">
+        <div class="sidebar-avatar">
+          <img *ngIf="profileImage" [src]="profileImage" alt="Profile" />
+          <i *ngIf="!profileImage" class="fas fa-user"></i>
+        </div>
+        <span class="sidebar-username">{{ name || 'User' }}</span>
+      </div>
+
+      <nav class="sidebar-nav">
+
+        <!-- ADMIN -->
+        <ng-container *ngIf="role === 'ADMIN'">
+          <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+            <a class="nav-item" routerLink="/manage-users" routerLinkActive="active">
+            <i class="fas fa-users-cog"></i>
+            <span>Manage Users</span>
+           </a> 
+          <a class="nav-item" routerLink="/ai-optimizer" routerLinkActive="active">
+            <i class="fas fa-robot"></i>
+            <span>AI Optimizer</span>
+          </a>
+            <a class="nav-item" routerLink="/profile" routerLinkActive="active">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+          </a>
+        </ng-container>
+
+        <!-- SALES -->
+        <ng-container *ngIf="role === 'SALES'">
+          <a class="nav-item" routerLink="/insomea-dashboard" routerLinkActive="active">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+          <a class="nav-item" routerLink="/pricelist-dashboard" routerLinkActive="active">
+            <i class="fas fa-tags"></i>
+            <span>Catalog & Pricing</span>
+          </a>
+          <a class="nav-item" routerLink="/sales-dashboard" routerLinkActive="active">
+            <i class="fas fa-file-invoice"></i>
+            <span>Invoices</span>
+          </a>
+          <a class="nav-item" routerLink="/ai-optimizer" routerLinkActive="active">
+            <i class="fas fa-robot"></i>
+            <span>AI Optimizer</span>
+          </a>
+          <a class="nav-item" routerLink="/profile" routerLinkActive="active">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+          </a>
+        </ng-container>
+
+        <!-- FINANCE -->
+        <ng-container *ngIf="role === 'FINANCE'">
+          <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+          <a class="nav-item" routerLink="/finance-dashboard" routerLinkActive="active">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Invoices & payments</span>
+          </a>
+          <a class="nav-item" routerLink="/profile" routerLinkActive="active">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+          </a>
+        </ng-container>
+
+        <!-- TECH -->
+        <ng-container *ngIf="role === 'TECH'">
+            <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+          <a class="nav-item" routerLink="/tech-dashboard" routerLinkActive="active">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>License deployments</span>
+          </a>
+          <a class="nav-item" routerLink="/profile" routerLinkActive="active">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+          </a>
+        </ng-container>
+
+        <!-- CLIENT -->
+        <ng-container *ngIf="role === 'CLIENT'">
+          <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+          <a class="nav-item" routerLink="/client-dashboard" routerLinkActive="active">
+            <i class="fas fa-key"></i>
+            <span>My Licenses</span>
+          </a>
+          <a class="nav-item" routerLink="/ai-optimizer" routerLinkActive="active">
+            <i class="fas fa-robot"></i>
+            <span>AI Optimizer</span>
+          </a>
+          <a class="nav-item" routerLink="/profile" routerLinkActive="active">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+          </a>
+        </ng-container>
+
+      </nav>
+    </aside>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+</div>

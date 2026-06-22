@@ -1,0 +1,59 @@
+<div class="settings-wrapper">
+  <div class="settings-card">
+
+    <div class="settings-left">
+      <div class="avatar-wrap" (click)="triggerImageInput()">
+        <img *ngIf="profileImage" [src]="profileImage" alt="Profile" class="avatar-img" />
+        <div *ngIf="!profileImage" class="avatar-placeholder">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="avatar-overlay">
+          <i class="fas fa-camera"></i>
+          <span>Change photo</span>
+        </div>
+      </div>
+      <input type="file" id="imageInput" accept="image/*"
+        (change)="onImageSelected($event)" style="display:none" />
+      <h3 class="avatar-name">{{ name || 'Your Name' }}</h3>
+      <p class="avatar-email">{{ email || 'your@email.com' }}</p>
+      <button class="btn-upload" (click)="triggerImageInput()">
+        <i class="fas fa-upload"></i> Upload Photo
+      </button>
+    </div>
+
+    <div class="settings-right">
+      <h2 class="settings-title">Personal Information</h2>
+
+      <div class="alert alert-success" *ngIf="successMessage">
+        <i class="fas fa-check-circle"></i> {{ successMessage }}
+      </div>
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      </div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <div class="input-wrap">
+          <i class="fas fa-user input-icon"></i>
+          <input type="text" [(ngModel)]="name" placeholder="Your full name" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <div class="input-wrap">
+          <i class="fas fa-envelope input-icon"></i>
+          <input type="email" [(ngModel)]="email" placeholder="Your email" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+        <button class="btn-save" (click)="saveName()">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -12,7 +12,7 @@ export class RegisterComponent {
   email = "";
   password = "";
   confirmPassword = "";
-  role = "";
+  role = "CLIENT";
 
   constructor(private http: HttpClient, private router: Router) {}
 

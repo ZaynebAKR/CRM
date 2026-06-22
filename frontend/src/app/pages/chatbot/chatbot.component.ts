@@ -38,7 +38,6 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     'How can I contact INSOMEA?',
   ];
 
-  // ✅ All INSOMEA information — this is your "training data"
   private systemPrompt = `You are a helpful and friendly virtual assistant for INSOMEA COMPUTER SOLUTIONS, a Microsoft Cloud Gold Partner operating in the MEA region.
 
 ABOUT INSOMEA:

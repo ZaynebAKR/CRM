@@ -9,7 +9,6 @@ export class AboutusComponent {
 
   searchText = "";
 
-  // Map search keywords to section IDs
   sectionsMap: { [key: string]: string } = {
     "who": "who-we-are",
     "who we are": "who-we-are",
@@ -33,7 +32,6 @@ export class AboutusComponent {
 
     if (!value) return;
 
-    // Find matching section while typing
     for (const key in this.sectionsMap) {
       if (key.startsWith(value) || (value.length > 1 && key.includes(value))) {
         const id = this.sectionsMap[key];
@@ -42,7 +40,6 @@ export class AboutusComponent {
       }
     }
 
-    // Try direct ID match if no keyword match found
     const directId = value.replace(/\s+/g, '-');
     if (document.getElementById(directId)) {
       this.scrollToSection(directId);
@@ -57,7 +54,6 @@ export class AboutusComponent {
         block: 'start'
       });
       
-      // Add highlight effect
       element.style.transition = 'background 0.3s';
       element.style.backgroundColor = '#fff7e0';
       setTimeout(() => {

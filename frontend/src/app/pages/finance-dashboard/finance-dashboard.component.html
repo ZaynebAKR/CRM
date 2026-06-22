@@ -1,0 +1,174 @@
+<div class="page-header">
+  <h1 class="page-title"><i class="fas fa-chart-line"></i> Finance Dashboard</h1>
+  <p class="page-subtitle">Overview of all invoices and payments</p>
+</div>
+
+<div class="alert alert-success" *ngIf="successMessage">
+  <i class="fas fa-check-circle"></i> {{ successMessage }}
+</div>
+<div class="alert alert-error" *ngIf="errorMessage">
+  <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card total">
+    <div class="kpi-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+    <div class="kpi-info">
+      <div class="kpi-value">{{ totalInvoiced | number:'1.2-2' }}</div>
+      <div class="kpi-label">Total Invoiced (EUR)</div>
+      <div class="kpi-count">{{ invoices.length }} invoices</div>
+    </div>
+  </div>
+  <div class="kpi-card paid">
+    <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+    <div class="kpi-info">
+      <div class="kpi-value">{{ totalPaid | number:'1.2-2' }}</div>
+      <div class="kpi-label">Total Paid (EUR)</div>
+      <div class="kpi-count">{{ countPaid }} invoices</div>
+    </div>
+  </div>
+  <div class="kpi-card pending">
+    <div class="kpi-icon"><i class="fas fa-clock"></i></div>
+    <div class="kpi-info">
+      <div class="kpi-value">{{ totalPending | number:'1.2-2' }}</div>
+      <div class="kpi-label">Pending Payment (EUR)</div>
+      <div class="kpi-count">{{ countPending }} invoices</div>
+    </div>
+  </div>
+  <div class="kpi-card draft">
+    <div class="kpi-icon"><i class="fas fa-file-alt"></i></div>
+    <div class="kpi-info">
+      <div class="kpi-value">{{ totalDraft | number:'1.2-2' }}</div>
+      <div class="kpi-label">Draft (EUR)</div>
+      <div class="kpi-count">{{ countDraft }} invoices</div>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="search-box">
+    <i class="fas fa-search"></i>
+    <input type="text" placeholder="Search by invoice #, client, sales..."
+      [(ngModel)]="searchText" (input)="applyFilter()" />
+  </div>
+  <div class="filter-tabs">
+    <button *ngFor="let s of statusOptions"
+      class="filter-tab" [class.active]="filterStatus === s"
+      (click)="filterStatus = s; applyFilter()">
+      {{ s }}
+    </button>
+  </div>
+</div>
+
+<div class="table-card">
+  <div class="loading" *ngIf="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+  <table *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>Invoice #</th>
+        <th>Client</th>
+        <th>Created By</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Issue Date</th>
+        <th>Due Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let inv of filteredInvoices">
+        <td><strong>{{ inv.invoiceNumber }}</strong></td>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar">{{ inv.client?.username?.charAt(0)?.toUpperCase() }}</div>
+            <div>
+              <div>{{ inv.client?.username }}</div>
+              <div class="sub-text">{{ inv.client?.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ inv.createdBy?.username }}</td>
+        <td><strong>{{ inv.totalAmount | number:'1.2-2' }} {{ inv.currency }}</strong></td>
+        <td><span class="status-badge" [ngClass]="getStatusClass(inv.status || '')">{{ inv.status }}</span></td>
+        <td>{{ inv.issueDate }}</td>
+        <td [class.overdue]="inv.status === 'SENT' && inv.dueDate && inv.dueDate < today">
+          {{ inv.dueDate }}
+          <span class="overdue-tag" *ngIf="inv.status === 'SENT' && inv.dueDate && inv.dueDate < today">Overdue</span>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn-action view" (click)="openDetail(inv)" title="View">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-action pdf" (click)="downloadPDF(inv)" title="Download PDF">
+              <i class="fas fa-file-pdf"></i>
+            </button>
+            <button class="btn-action paid" (click)="markAsPaid(inv)"
+              *ngIf="inv.status === 'SENT'" title="Mark as Paid">
+              <i class="fas fa-check"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="filteredInvoices.length === 0">
+        <td colspan="8" class="empty">No invoices found.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="showDetailModal = false">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-file-invoice"></i> {{ selectedInvoice?.invoiceNumber }}</h3>
+      <button class="close-btn" (click)="showDetailModal = false"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="selectedInvoice">
+      <div class="invoice-meta">
+        <div><label>Client</label><span>{{ selectedInvoice.client?.username }}</span></div>
+        <div><label>Email</label><span>{{ selectedInvoice.client?.email }}</span></div>
+        <div><label>Created By</label><span>{{ selectedInvoice.createdBy?.username }}</span></div>
+        <div><label>Status</label>
+          <span class="status-badge" [ngClass]="getStatusClass(selectedInvoice.status || '')">
+            {{ selectedInvoice.status }}
+          </span>
+        </div>
+        <div><label>Issue Date</label><span>{{ selectedInvoice.issueDate }}</span></div>
+        <div><label>Due Date</label><span>{{ selectedInvoice.dueDate }}</span></div>
+        <div><label>Total</label>
+          <strong style="color:#378ADD; font-size:16px;">
+            {{ selectedInvoice.totalAmount | number:'1.2-2' }} {{ selectedInvoice.currency }}
+          </strong>
+        </div>
+      </div>
+      <div *ngIf="selectedInvoice.notes" class="invoice-notes">
+        <strong>Notes:</strong> {{ selectedInvoice.notes }}
+      </div>
+      <table class="items-table">
+        <thead>
+          <tr><th>Product</th><th>Part #</th><th>Cycle</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of selectedInvoice.items">
+            <td>{{ item.productName }}</td>
+            <td>{{ item.partNumber }}</td>
+            <td>{{ item.billingCycle }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unitPrice | number:'1.2-2' }}</td>
+            <td><strong>{{ item.totalPrice | number:'1.2-2' }}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showDetailModal = false">Close</button>
+      <button class="btn-pdf" (click)="downloadPDF(selectedInvoice!)">
+        <i class="fas fa-file-pdf"></i> Download PDF
+      </button>
+      <button class="btn-save" *ngIf="selectedInvoice?.status === 'SENT'"
+        (click)="markAsPaid(selectedInvoice!)">
+        <i class="fas fa-check"></i> Mark as Paid
+      </button>
+    </div>
+  </div>
+</div>

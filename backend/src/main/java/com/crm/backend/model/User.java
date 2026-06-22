@@ -1,7 +1,10 @@
 package com.crm.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.Instant;
 
 @Entity
 @Data
@@ -16,6 +19,7 @@ public class User {
 
     @Column(unique = true)
     private String username;
+    @JsonIgnore
     private String password;
 
     @Column(unique = true)
@@ -23,4 +27,12 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+    @JsonIgnore
+    @Column(name = "reset_token")
+    private String resetToken;
+    @JsonIgnore
+    @Column(name = "reset_token_expiry")
+    private Instant resetTokenExpiry;
+
+
 }

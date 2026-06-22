@@ -15,7 +15,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
 
     @Autowired
@@ -23,6 +22,7 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -39,6 +39,7 @@ public class AuthController {
         if (token != null) {
             User user = authService.findByUsername(request.getUsername());
             AuthResponse response = new AuthResponse(
+                    user.getId(),
                     user.getUsername(),
                     user.getRole().name(),
                     token,
@@ -79,6 +80,34 @@ public class AuthController {
                     body.get("newPassword")
             );
             return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestBody Map<String, String> body,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String username = jwtUtil.extractUsername(token);
+            authService.changePassword(username, body.get("currentPassword"), body.get("newPassword"));
+            return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+    @PutMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(
+            @RequestBody Map<String, String> body,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String username = jwtUtil.extractUsername(token);
+            authService.updateProfile(username, body.get("name"), body.get("email"));
+            return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }

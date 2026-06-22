@@ -21,13 +21,11 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // If already logged in, redirect immediately
     if (this.authService.isLoggedIn()) {
       this.redirectByRole(this.authService.getUser()?.role ?? '');
       return;
     }
 
-    // Pre-fill username only (never pre-fill password for security)
     const saved = localStorage.getItem('rememberedUsername');
     if (saved) {
       this.username = saved;
@@ -42,15 +40,13 @@ export class LoginComponent implements OnInit {
     const data = {
       username: this.username,
       password: this.password,
-      rememberMe: this.rememberMe  // ✅ sent to backend
+      rememberMe: this.rememberMe  
     };
 
     this.http.post<any>('http://localhost:8081/auth/login', data).subscribe({
       next: (res) => {
-        // ✅ Save token in the right storage based on rememberMe
-        this.authService.saveSession(res.token, res.username, res.role, res.rememberMe);
+        this.authService.saveSession(res.token, res.username, res.role, res.rememberMe, res.id );
 
-        // Keep pre-filling username convenience (separate from session)
         if (this.rememberMe) {
           localStorage.setItem('rememberedUsername', this.username);
         } else {
@@ -65,15 +61,16 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  private redirectByRole(role: string) {
-    const routes: Record<string, string> = {
-      INSOMEA:               '/insomea-dashboard',
-      PARTENAIRES_COMMERCIAUX: '/partenaires-dashboard',
-      CLIENT:                '/client-dashboard',
-      MICROSOFT:             '/microsoft-dashboard',
-    };
-    const path = routes[role];
-    if (path) this.router.navigate([path]);
-    else alert('Role not recognized');
-  }
+private redirectByRole(role: string) {
+  const routes: Record<string, string> = {
+    ADMIN:   '/dashboard',
+    SALES:   '/insomea-dashboard',
+    FINANCE: '/dashboard',
+    TECH:    '/dashboard',
+    CLIENT:  '/dashboard',
+  };
+  const path = routes[role];
+  if (path) this.router.navigate([path]);
+  else console.error('Role not recognized:', role);
+}
 }
