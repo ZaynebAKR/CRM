@@ -7,7 +7,28 @@
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
 
+.nav-links a {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-links a:hover {
+  opacity: 1;
+  color: #FFC107;
+}
 .nav-container {
   max-width: 1400px;
   margin: 0 auto;

@@ -61,4 +61,7 @@ public class License {
 
     @Column(name = "deployment_note")
     private String deploymentNote;
+
+    @Column(name = "expiry_reminder_sent")
+    private Boolean expiryReminderSent = false;
 }

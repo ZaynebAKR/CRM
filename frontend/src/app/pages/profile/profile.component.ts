@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ProfileStateService } from 'src/app/profile-state.service';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -19,16 +20,39 @@ export class ProfileComponent implements OnInit {
   successMessage: string = '';
   errorMessage: string = '';
 
-  private userId: string = '';
-
-  constructor(private authService: AuthService, private router: Router, private http: HttpClient) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private http: HttpClient,
+    private profileState: ProfileStateService
+  ) {}
 
   ngOnInit(): void {
-const user = this.authService.getUser();
-this.userId = user?.username || '';
-    this.name         = localStorage.getItem(`profile_name_${this.userId}`)  || '';
-    this.email        = localStorage.getItem(`profile_email_${this.userId}`) || '';
-    this.profileImage = localStorage.getItem(`profile_image_${this.userId}`) || null;
+    this.loadProfile();
+  }
+
+  private loadProfile(): void {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    this.http.get<any>('http://localhost:8081/auth/me', { headers }).subscribe({
+      next: (user) => {
+        this.name = user.username;
+        this.email = user.email;
+        this.profileImage = user.profileImageUrl
+          ? 'http://localhost:8081' + user.profileImageUrl
+          : null;
+
+        this.profileState.setProfile({
+          username: this.name,
+          email: this.email,
+          profileImageUrl: this.profileImage
+        });
+      },
+      error: () => {
+        this.errorMessage = 'Impossible de charger le profil.';
+      }
+    });
   }
 
   triggerImageInput(): void {
@@ -37,40 +61,63 @@ this.userId = user?.username || '';
 
   onImageSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.profileImage = reader.result as string;
-        localStorage.setItem(`profile_image_${this.userId}`, this.profileImage);
-        this.successMessage = 'Photo updated successfully!';
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => { this.profileImage = reader.result as string; };
+    reader.readAsDataURL(file);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    this.http.post<{ imageUrl: string }>(
+      'http://localhost:8081/auth/upload-profile-image',
+      formData,
+      { headers }
+    ).subscribe({
+      next: (res) => {
+        this.profileImage = 'http://localhost:8081' + res.imageUrl;
+        this.profileState.updateImage(this.profileImage);
+        this.successMessage = 'Photo mise à jour avec succès !';
         setTimeout(() => this.successMessage = '', 3000);
-      };
-      reader.readAsDataURL(file);
-    }
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || "Erreur lors de l'envoi de l'image.";
+        setTimeout(() => this.errorMessage = '', 4000);
+      }
+    });
   }
 
-saveName(): void {
-  const token = this.authService.getToken();
-  const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+  saveName(): void {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-  this.http.put(
-    'http://localhost:8081/auth/update-profile',
-    { name: this.name, email: this.email },
-    { headers }
-  ).subscribe({
-    next: () => {
-      localStorage.setItem(`profile_name_${this.userId}`, this.name);
-      localStorage.setItem(`profile_email_${this.userId}`, this.email);
-      this.successMessage = 'Information updated successfully!';
-      setTimeout(() => this.successMessage = '', 3000);
-    },
-    error: (err) => {
-      this.errorMessage = err.error?.message || 'Error updating profile.';
-      setTimeout(() => this.errorMessage = '', 4000);
-    }
-  });
-}
+    this.http.put<any>(
+      'http://localhost:8081/auth/update-profile',
+      { name: this.name, email: this.email },
+      { headers }
+    ).subscribe({
+      next: (res) => {
+        // Le username a pu changer -> le token a changé, il faut le remplacer
+        this.authService.setToken(res.token);
 
+        this.name = res.username;
+        this.email = res.email;
+
+        this.profileState.updateNameEmail(this.name, this.email);
+
+        this.successMessage = 'Information updated successfully!';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Error updating profile.';
+        setTimeout(() => this.errorMessage = '', 4000);
+      }
+    });
+  }
 
   savePassword(): void {
     if (this.newPassword !== this.confirmPassword) {
@@ -94,10 +141,10 @@ saveName(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
   cancelEdit(): void {
-  this.name  = localStorage.getItem(`profile_name_${this.userId}`)  || '';
-  this.email = localStorage.getItem(`profile_email_${this.userId}`) || '';
-  this.errorMessage = '';
-  this.successMessage = '';
-}
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.loadProfile();
+  }
 }

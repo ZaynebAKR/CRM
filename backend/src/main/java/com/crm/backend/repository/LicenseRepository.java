@@ -19,4 +19,8 @@ public interface LicenseRepository extends JpaRepository<License, Long> {
 
     @Query("SELECT l FROM License l WHERE l.expiryDate BETWEEN :today AND :in30Days AND l.status = 'ACTIVE'")
     List<License> findExpiringLicenses(LocalDate today, LocalDate in30Days);
+
+    @Query("SELECT l FROM License l WHERE l.expiryDate BETWEEN :today AND :targetDate " +
+            "AND l.status = 'ACTIVE' AND (l.expiryReminderSent = false OR l.expiryReminderSent IS NULL)")
+    List<License> findLicensesNeedingReminder(LocalDate today, LocalDate targetDate);
 }

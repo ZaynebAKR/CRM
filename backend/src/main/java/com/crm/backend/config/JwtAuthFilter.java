@@ -26,7 +26,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/auth/forgot-password",
             "/auth/verify-reset-code",
             "/auth/reset-password",
-            "/api/chat"
+            "/api/chat" ,
+            "/uploads"
+
     );
 
     @Override
@@ -36,16 +38,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getServletPath();
+        System.out.println("=== JwtAuthFilter === path: " + path + " | method: " + request.getMethod());
 
-        // Skip JWT check for public routes
         if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
+            System.out.println("=== JwtAuthFilter === route publique, on passe sans vérifier le token");
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
+        System.out.println("=== JwtAuthFilter === authHeader recu: " + authHeader);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("=== JwtAuthFilter === REJET: header manquant ou mal formé");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"message\": \"Missing or invalid Authorization header\"}");
@@ -55,6 +60,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         if (!jwtUtil.isTokenValid(token)) {
+            System.out.println("=== JwtAuthFilter === REJET: token invalide");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"message\": \"Invalid or expired token\"}");
@@ -63,6 +69,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String username = jwtUtil.extractUsername(token);
         String role = jwtUtil.extractRole(token);
+        System.out.println("=== JwtAuthFilter === OK, username=" + username + " role=" + role);
 
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(

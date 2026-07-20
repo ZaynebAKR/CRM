@@ -46,7 +46,7 @@ export class AboutusComponent {
     }
   }
 
-  private scrollToSection(sectionId: string) {
+   scrollToSection(sectionId: string) {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({

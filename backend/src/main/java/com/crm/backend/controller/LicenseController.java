@@ -67,4 +67,9 @@ public class LicenseController {
                 id, body.get("deploymentStatus"), body.get("note")
         ));
     }
+    @PostMapping("/tech/send-reminders-now")
+    public ResponseEntity<String> triggerRemindersManually() {
+        licenseService.sendExpiryReminders();
+        return ResponseEntity.ok("Vérification des rappels lancée.");
+    }
 }

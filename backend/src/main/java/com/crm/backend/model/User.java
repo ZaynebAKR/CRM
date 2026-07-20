@@ -34,5 +34,6 @@ public class User {
     @Column(name = "reset_token_expiry")
     private Instant resetTokenExpiry;
 
-
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
 }

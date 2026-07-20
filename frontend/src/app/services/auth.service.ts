@@ -38,5 +38,7 @@
       sessionStorage.removeItem(this.USER_KEY);
       localStorage.removeItem('rememberedUsername');
     }
-    
+    setToken(token: string): void {
+  localStorage.setItem('token', token);
+}
   }

@@ -9,6 +9,14 @@
         (input)="liveSearch()"
       />
     </div>
+
+    <div class="nav-links">
+      <a (click)="scrollToSection('awards')">Recognition</a>
+      <a (click)="scrollToSection('values')">Values</a>
+      <a (click)="scrollToSection('expertise')">Expertise</a>
+      <a (click)="scrollToSection('locations')">Presence</a>
+    </div>
+
     <button class="login-btn" routerLink="/login">
       <i class="fas fa-sign-in-alt"></i> Login
     </button>

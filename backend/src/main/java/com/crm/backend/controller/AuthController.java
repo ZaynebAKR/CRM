@@ -10,7 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.crm.backend.model.User;
 import com.crm.backend.service.AuthService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.UUID;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -23,6 +30,8 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Value("${app.upload.dir:${user.home}/insomea-uploads}")
+    private String uploadDir;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -105,9 +114,75 @@ public class AuthController {
     ) {
         try {
             String token = authHeader.replace("Bearer ", "");
+            String oldUsername = jwtUtil.extractUsername(token);
+
+            User updated = authService.updateProfile(oldUsername, body.get("name"), body.get("email"));
+
+            // Le username a pu changer -> il faut un nouveau token valide
+            String newToken = jwtUtil.generateToken(updated.getUsername(), updated.getRole().name(), true);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Profile updated successfully",
+                    "token", newToken,
+                    "username", updated.getUsername(),
+                    "email", updated.getEmail(),
+                    "profileImageUrl", updated.getProfileImageUrl() != null ? updated.getProfileImageUrl() : ""
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/upload-profile-image")
+    public ResponseEntity<?> uploadProfileImage(
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
             String username = jwtUtil.extractUsername(token);
-            authService.updateProfile(username, body.get("name"), body.get("email"));
-            return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
+
+            if (file.isEmpty() || file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Fichier invalide, une image est attendue."));
+            }
+            if (file.getSize() > 5 * 1024 * 1024) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Image trop volumineuse (max 5MB)."));
+            }
+
+            Path dirPath = Paths.get(uploadDir, "profiles");
+            Files.createDirectories(dirPath);
+
+            String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
+            String filename = UUID.randomUUID() + "." + extension;
+            Path filePath = dirPath.resolve(filename);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            String imageUrl = "/uploads/profiles/" + filename;
+            authService.updateProfileImage(username, imageUrl);
+
+            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Erreur lors de l'upload."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String username = jwtUtil.extractUsername(token);
+            User user = authService.findByUsername(username);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "User not found"));
+            }
+            return ResponseEntity.ok(Map.of(
+                    "username", user.getUsername(),
+                    "email", user.getEmail(),
+                    "role", user.getRole().name(),
+                    "profileImageUrl", user.getProfileImageUrl() != null ? user.getProfileImageUrl() : ""
+            ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }

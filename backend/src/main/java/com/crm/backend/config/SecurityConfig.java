@@ -47,7 +47,8 @@ public class SecurityConfig {
                                 "/auth/forgot-password", "/auth/verify-reset-code",
                                 "/auth/reset-password", "/api/chat",
                                 "/licenses/**" , "/api/stripe/**" ,
-                                "/auth/update-profile"
+                                "/auth/update-profile" ,
+                                "/uploads/**"
                         ).permitAll()
                         .requestMatchers("/admin/users/clients").hasAnyRole("ADMIN", "SALES", "FINANCE", "TECH")
                         .requestMatchers("/admin/**").hasRole("ADMIN")

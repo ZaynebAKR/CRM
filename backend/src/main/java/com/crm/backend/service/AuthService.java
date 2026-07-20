@@ -65,7 +65,7 @@ public class AuthService {
 
     public void requestPasswordReset(String email) {
         User user = userRepository.findByEmailIgnoreCase(email.trim());
-        if (user == null) throw new RuntimeException("Aucun compte associé à cet email");
+        if (user == null) throw new RuntimeException("No account associated with this email");
 
         String code = String.format("%06d", (int)(Math.random() * 1000000));
 
@@ -75,15 +75,15 @@ public class AuthService {
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
-        message.setSubject("Réinitialisation de votre mot de passe - INSOMEA");
+        message.setSubject("Password Reset - INSOMEA");
         message.setText(
-                "Bonjour " + user.getUsername() + ",\n\n" +
-                        "Vous avez demandé la réinitialisation de votre mot de passe.\n\n" +
-                        "Votre code de réinitialisation est :\n\n" +
+                "Hello " + user.getUsername() + ",\n\n" +
+                        "You requested a password reset.\n\n" +
+                        "Your reset code is:\n\n" +
                         code + "\n\n" +
-                        "Ce code expire dans 15 minutes.\n\n" +
-                        "Entrez ce code sur la page de réinitialisation pour choisir un nouveau mot de passe.\n\n" +
-                        "— L'équipe INSOMEA"
+                        "This code expires in 15 minutes.\n\n" +
+                        "Enter this code on the reset page to choose a new password.\n\n" +
+                        "— The INSOMEA Team"
         );
         mailSender.send(message);
     }
@@ -126,7 +126,8 @@ public class AuthService {
         user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
     }
-    public void updateProfile(String username, String name, String email) {
+
+    public User updateProfile(String username, String name, String email) {
         User user = userRepository.findByUsername(username);
         if (user == null) throw new RuntimeException("User not found");
 
@@ -135,7 +136,21 @@ public class AuthService {
             if (existingEmail != null) throw new RuntimeException("Email already exists");
             user.setEmail(email);
         }
-        if (name != null) user.setUsername(name);
+
+        if (name != null && !name.equals(user.getUsername())) {
+            User existingUsername = userRepository.findByUsername(name);
+            if (existingUsername != null) throw new RuntimeException("Username already exists");
+            user.setUsername(name);
+        }
+
+        return userRepository.save(user);
+    }
+
+    public String updateProfileImage(String username, String imageUrl) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) throw new RuntimeException("User not found");
+        user.setProfileImageUrl(imageUrl);
         userRepository.save(user);
+        return imageUrl;
     }
 }
